@@ -193,17 +193,18 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({ playEvents = [] }) => {
                 className="cursor-pointer transition-transform duration-200"
                 onClick={() => setSelectedPitchIndex(p.pitchNumber || index + 1)}
               >
-                {/* 最新球のパルスリングアニメーション */}
+                {/* 最新球の外周グローハイライト（ちらつきを抑えたやわらかな光彩リング） */}
                 {isLatest && (
                   <circle
                     cx={ptCoords.x}
                     cy={ptCoords.y}
-                    r="15"
-                    fill="none"
+                    r="15.5"
+                    fill={colors.bg}
+                    fillOpacity="0.22"
                     stroke={colors.bg}
                     strokeWidth="2"
-                    opacity="0.8"
-                    className="animate-ping"
+                    strokeOpacity="0.9"
+                    className="animate-pulse"
                   />
                 )}
 

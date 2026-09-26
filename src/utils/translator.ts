@@ -198,8 +198,7 @@ export const PLAYER_NAME_JA: Record<string, string> = {
 
 export function getPlayerDisplayName(fullName: string): string {
   if (!fullName) return '';
-  const trimmed = fullName.trim();
-  return PLAYER_NAME_JA[trimmed] || trimmed;
+  return fullName.trim();
 }
 
 export const PITCH_TYPES_JA: Record<string, string> = {
@@ -514,13 +513,6 @@ function parsePlayDescription(
  */
 function fallbackTranslate(rawDesc: string, batterDisplayName: string): string {
   let parsed = rawDesc;
-
-  // 既知選手名の日本語化
-  Object.keys(PLAYER_NAME_JA).forEach((engName) => {
-    if (parsed.includes(engName)) {
-      parsed = parsed.split(engName).join(PLAYER_NAME_JA[engName]);
-    }
-  });
 
   // 打者名を先頭に補完
   if (batterDisplayName && !parsed.includes(batterDisplayName)) {
