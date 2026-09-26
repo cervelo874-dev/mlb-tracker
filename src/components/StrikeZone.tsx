@@ -166,10 +166,10 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({
 
           {/* 左打席ボックス (画面左・一塁側) */}
           <rect
-            x="12"
-            y="65"
-            width="56"
-            height="205"
+            x="6"
+            y="42"
+            width="72"
+            height="228"
             rx="8"
             fill={isLeftHanded ? "url(#batterBoxGrad)" : "rgba(15, 23, 42, 0.4)"}
             stroke={isLeftHanded ? neonColor : "#334155"}
@@ -179,8 +179,8 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({
           />
           {/* 左打席インジケーター L */}
           <text
-            x="40"
-            y="56"
+            x="42"
+            y="35"
             textAnchor="middle"
             fill={isLeftHanded ? neonColor : "#475569"}
             fontSize="9"
@@ -192,10 +192,10 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({
 
           {/* 右打席ボックス (画面右・三塁側) */}
           <rect
-            x="192"
-            y="65"
-            width="56"
-            height="205"
+            x="182"
+            y="42"
+            width="72"
+            height="228"
             rx="8"
             fill={!isLeftHanded ? "url(#batterBoxGrad)" : "rgba(15, 23, 42, 0.4)"}
             stroke={!isLeftHanded ? neonColor : "#334155"}
@@ -205,8 +205,8 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({
           />
           {/* 右打席インジケーター R */}
           <text
-            x="220"
-            y="56"
+            x="218"
+            y="35"
             textAnchor="middle"
             fill={!isLeftHanded ? neonColor : "#475569"}
             fontSize="9"
@@ -234,10 +234,10 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({
 
           {/* 足元のホログラム接地サークル */}
           <ellipse
-            cx={isLeftHanded ? 40 : 220}
-            cy={260}
-            rx={20}
-            ry={5.5}
+            cx={isLeftHanded ? 42 : 218}
+            cy={265}
+            rx={25}
+            ry={6.5}
             fill="none"
             stroke={neonColor}
             strokeWidth="1.2"
@@ -245,22 +245,22 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({
             strokeOpacity="0.7"
           />
           <ellipse
-            cx={isLeftHanded ? 40 : 220}
-            cy={260}
-            rx={12}
-            ry={3.5}
+            cx={isLeftHanded ? 42 : 218}
+            cy={265}
+            rx={15}
+            ry={4}
             fill={neonColor}
             fillOpacity="0.15"
           />
 
-          {/* バッター立ち絵 (高精細アスリートホログラムPNG) */}
+          {/* バッター立ち絵 (高精細アスリートホログラムPNG: リアルスケール拡大版) */}
           {/* 投手視点: マウンド(手前上)を鋭く見据え、前肩を出しバットを引いた正確なフォーム */}
           <image
             href={isLeftHanded ? batterLhbImg : batterRhbImg}
-            x={isLeftHanded ? 6 : 186}
-            y={92}
-            width={68}
-            height={168}
+            x={isLeftHanded ? -7 : 169}
+            y={23}
+            width={98}
+            height={242}
             opacity={0.55}
             filter="url(#batter-tint-glow)"
             style={{ pointerEvents: 'none' }}
