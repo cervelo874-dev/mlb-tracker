@@ -14,6 +14,11 @@ interface MatchupCardProps {
       home?: { players?: Record<string, any> };
     };
   };
+  probablePitchers?: {
+    away?: PlayerBasic;
+    home?: PlayerBasic;
+  };
+  isPreGame?: boolean;
 }
 
 export const MatchupCard: React.FC<MatchupCardProps> = ({
@@ -22,12 +27,20 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
   onDeck,
   players,
   boxscore,
+  probablePitchers,
+  isPreGame = false,
 }) => {
-  const pitcherId = pitcher?.id;
-  const batterId = batter?.id;
+  // 試合前で実況バッテリーが未定の場合、予告先発投手同士のプレビュー対決を表示
+  const showProbables = isPreGame && probablePitchers && (probablePitchers.away || probablePitchers.home);
+
+  const activePitcher = showProbables ? probablePitchers.away : pitcher;
+  const activeOpponent = showProbables ? probablePitchers.home : batter;
+
+  const pitcherId = activePitcher?.id;
+  const opponentId = activeOpponent?.id;
 
   const pitcherKey = pitcherId ? `ID${pitcherId}` : null;
-  const batterKey = batterId ? `ID${batterId}` : null;
+  const opponentKey = opponentId ? `ID${opponentId}` : null;
 
   // boxscore から詳細スタッツを取得
   const awayPlayers = boxscore?.teams?.away?.players;
@@ -36,12 +49,12 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
   const pitcherBox = pitcherKey
     ? awayPlayers?.[pitcherKey] || homePlayers?.[pitcherKey]
     : null;
-  const batterBox = batterKey
-    ? awayPlayers?.[batterKey] || homePlayers?.[batterKey]
+  const opponentBox = opponentKey
+    ? awayPlayers?.[opponentKey] || homePlayers?.[opponentKey]
     : null;
 
   const pitcherData = pitcherKey ? players?.[pitcherKey] : null;
-  const batterData = batterKey ? players?.[batterKey] : null;
+  const opponentData = opponentKey ? players?.[opponentKey] : null;
 
   // 投手スタッツの抽出
   const pPitching = pitcherBox?.stats?.pitching;
@@ -54,14 +67,23 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
   const pWins = pSeason?.wins;
   const pLosses = pSeason?.losses;
 
-  // 打者スタッツの抽出
-  const bBatting = batterBox?.stats?.batting;
-  const bSeason = batterBox?.seasonStats?.batting || batterData?.stats?.batting;
+  // 右側（打者 または 予告先発ホーム投手）のスタッツ抽出
+  const oppPitchSeason = opponentBox?.seasonStats?.pitching || opponentData?.stats?.pitching;
+  const oppPEra = oppPitchSeason?.era ?? opponentData?.stats?.pitching?.era ?? '-.--';
+  const oppPWins = oppPitchSeason?.wins;
+  const oppPLosses = oppPitchSeason?.losses;
+
+  const bBatting = opponentBox?.stats?.batting;
+  const bSeason = opponentBox?.seasonStats?.batting || opponentData?.stats?.batting;
   const bAtBats = bBatting?.atBats;
   const bHits = bBatting?.hits;
   const bHR = bBatting?.homeRuns;
   const bRBI = bBatting?.rbi;
-  const bAvg = bSeason?.avg ? `.${Math.round(parseFloat(bSeason.avg) * 1000)}` : (batterData?.stats?.batting?.avg ? `.${Math.round(batterData.stats.batting.avg * 1000)}` : '-');
+  const bAvg = bSeason?.avg
+    ? `.${Math.round(parseFloat(bSeason.avg) * 1000)}`
+    : opponentData?.stats?.batting?.avg
+    ? `.${Math.round(opponentData.stats.batting.avg * 1000)}`
+    : '-';
   const bOps = bSeason?.ops ?? '-';
   const bSeasonHR = bSeason?.homeRuns;
 
@@ -71,27 +93,36 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
       <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-800/80">
         <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
           <Activity className="w-3.5 h-3.5 text-dodger-light" />
-          対決 (MATCHUP)
+          {showProbables ? '予告先発 (PROBABLE PITCHERS)' : '対決 (MATCHUP)'}
         </span>
         <span className="text-[10px] text-slate-400 font-mono">
-          リアルタイム打席
+          {showProbables ? '先発マッチアップ' : 'リアルタイム打席'}
         </span>
       </div>
 
-      {/* 投手 vs 打者 メイン対決エリア */}
+      {/* 投手 vs 打者（または予告先発対決）メインエリア */}
       <div className="grid grid-cols-2 gap-3 divide-x divide-slate-800/80 my-auto">
-        {/* 投手エリア */}
+        {/* 左側: 投手（または先攻予告先発） */}
         <div className="flex flex-col gap-2 pr-1">
-          {/* 投手アイコン & 氏名 */}
+          {/* アイコン & 氏名 */}
           <div className="flex items-center gap-2">
             <div className="relative w-10 h-10 rounded-full overflow-hidden bg-slate-800 border-2 border-slate-700 flex-shrink-0 shadow">
               {pitcherId ? (
                 <img
-                  src={`https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_120,q_auto:best/v1/people/${pitcherId}/headshot/67/current`}
-                  alt={pitcher?.fullName}
-                  className="w-full h-full object-cover object-top"
+                  src={`https://midfield.mlbstatic.com/v1/people/${pitcherId}/spots/120`}
+                  alt={activePitcher?.fullName}
+                  className="w-full h-full object-cover object-center"
+                  loading="lazy"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
                   onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
+                    const img = e.currentTarget;
+                    if (!img.dataset.fallback && pitcherId) {
+                      img.dataset.fallback = 'true';
+                      img.src = `https://img.mlbstatic.com/mlb-photos/image/upload/w_120,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${pitcherId}/headshot/silo/current.png`;
+                    } else {
+                      img.style.display = 'none';
+                    }
                   }}
                 />
               ) : null}
@@ -103,7 +134,7 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1">
                 <span className="text-[9px] font-extrabold uppercase tracking-wider text-rose-400 bg-rose-950/60 px-1 py-0.2 rounded border border-rose-800/40">
-                  P 投手
+                  {showProbables ? '先発(ビジター)' : 'P 投手'}
                 </span>
                 {pitcherData?.pitchHand?.code && (
                   <span className="text-[10px] text-slate-400 font-medium">
@@ -112,7 +143,7 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
                 )}
               </div>
               <div className="text-xs sm:text-sm font-bold text-slate-100 truncate">
-                {pitcher?.fullName ? getPlayerDisplayName(pitcher.fullName) : '投手未定'}
+                {activePitcher?.fullName ? getPlayerDisplayName(activePitcher.fullName) : '投手未定'}
               </div>
             </div>
           </div>
@@ -123,14 +154,15 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
             <div className="flex items-center justify-between text-slate-300">
               <span className="text-slate-500 font-sans">今日:</span>
               <span className="font-bold text-amber-300">
-                {pPitches !== undefined ? `${pPitches}球` : '-'}
+                {pPitches !== undefined ? `${pPitches}球` : showProbables ? '登板前' : '-'}
                 {pStrikes !== undefined ? ` (${pStrikes}S)` : ''}
               </span>
             </div>
             <div className="flex items-center justify-between text-slate-400">
               <span className="text-slate-500 font-sans">奪三振/失点:</span>
               <span>
-                <strong className="text-slate-200">{pStrikeouts ?? 0}</strong> K / <strong className="text-rose-400">{pRuns ?? 0}</strong> 失
+                <strong className="text-slate-200">{pStrikeouts ?? 0}</strong> K /{' '}
+                <strong className="text-rose-400">{pRuns ?? 0}</strong> 失
               </span>
             </div>
             {/* 今季 */}
@@ -147,83 +179,137 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
           </div>
         </div>
 
-        {/* 打者エリア */}
+        {/* 右側: 打者 または 後攻予告先発投手 */}
         <div className="flex flex-col gap-2 pl-2">
-          {/* 打者アイコン & 氏名 */}
+          {/* アイコン & 氏名 */}
           <div className="flex items-center gap-2">
-            <div className="relative w-10 h-10 rounded-full overflow-hidden bg-slate-800 border-2 border-amber-600/50 flex-shrink-0 shadow">
-              {batterId ? (
+            <div
+              className={`relative w-10 h-10 rounded-full overflow-hidden bg-slate-800 border-2 ${
+                showProbables ? 'border-sky-600/60' : 'border-amber-600/50'
+              } flex-shrink-0 shadow`}
+            >
+              {opponentId ? (
                 <img
-                  src={`https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_120,q_auto:best/v1/people/${batterId}/headshot/67/current`}
-                  alt={batter?.fullName}
-                  className="w-full h-full object-cover object-top"
+                  src={`https://midfield.mlbstatic.com/v1/people/${opponentId}/spots/120`}
+                  alt={activeOpponent?.fullName}
+                  className="w-full h-full object-cover object-center"
+                  loading="lazy"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
                   onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
+                    const img = e.currentTarget;
+                    if (!img.dataset.fallback && opponentId) {
+                      img.dataset.fallback = 'true';
+                      img.src = `https://img.mlbstatic.com/mlb-photos/image/upload/w_120,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${opponentId}/headshot/silo/current.png`;
+                    } else {
+                      img.style.display = 'none';
+                    }
                   }}
                 />
               ) : null}
               <div className="absolute inset-0 flex items-center justify-center -z-10 text-slate-500 text-xs">
-                <Target className="w-4 h-4" />
+                {showProbables ? <Shield className="w-4 h-4" /> : <Target className="w-4 h-4" />}
               </div>
             </div>
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1">
-                <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-400 bg-amber-950/60 px-1 py-0.2 rounded border border-amber-800/40">
-                  B 打者
+                <span
+                  className={`text-[9px] font-extrabold uppercase tracking-wider ${
+                    showProbables
+                      ? 'text-sky-400 bg-sky-950/60 border-sky-800/40'
+                      : 'text-amber-400 bg-amber-950/60 border-amber-800/40'
+                  } px-1 py-0.2 rounded border`}
+                >
+                  {showProbables ? '先発(ホーム)' : 'B 打者'}
                 </span>
-                {batterData?.batSide?.code && (
-                  <span className="text-[10px] text-slate-400 font-medium">
-                    ({batterData.batSide.code === 'R' ? '右' : batterData.batSide.code === 'L' ? '左' : '両'})
-                  </span>
+                {showProbables ? (
+                  opponentData?.pitchHand?.code && (
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      ({opponentData.pitchHand.code === 'R' ? '右' : '左'})
+                    </span>
+                  )
+                ) : (
+                  opponentData?.batSide?.code && (
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      ({opponentData.batSide.code === 'R' ? '右' : opponentData.batSide.code === 'L' ? '左' : '両'})
+                    </span>
+                  )
                 )}
               </div>
               <div className="text-xs sm:text-sm font-bold text-slate-100 truncate">
-                {batter?.fullName ? getPlayerDisplayName(batter.fullName) : '打者'}
+                {activeOpponent?.fullName ? getPlayerDisplayName(activeOpponent.fullName) : showProbables ? '投手未定' : '打者'}
               </div>
             </div>
           </div>
 
-          {/* 打者スタッツボックス（OPSと本塁打を個別行に分離） */}
-          <div className="space-y-1 bg-slate-900/80 rounded-xl p-1.5 sm:p-2 border border-slate-800/80 text-[10px] font-mono">
-            {/* 今日 */}
-            <div className="flex items-center justify-between text-slate-300">
-              <span className="text-slate-500 font-sans">今日:</span>
-              <span className="font-bold text-amber-300 truncate max-w-[110px]">
-                {bAtBats !== undefined && bHits !== undefined
-                  ? `${bAtBats}打数${bHits}安打${bHR ? ` ${bHR}HR` : ''}${bRBI ? ` ${bRBI}点` : ''}`
-                  : bBatting?.summary || '打席中'}
-              </span>
+          {/* 右側スタッツボックス */}
+          {showProbables ? (
+            /* 試合前の相手先発投手スタッツ */
+            <div className="space-y-1 bg-slate-900/80 rounded-xl p-1.5 sm:p-2 border border-slate-800/80 text-[10px] font-mono">
+              <div className="flex items-center justify-between text-slate-300">
+                <span className="text-slate-500 font-sans">今日:</span>
+                <span className="font-bold text-amber-300">登板前</span>
+              </div>
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-slate-500 font-sans">今季登板数:</span>
+                <span className="font-bold text-slate-200">
+                  {oppPitchSeason?.gamesPitched !== undefined ? `${oppPitchSeason.gamesPitched}登板` : '-'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-slate-400 pt-1 border-t border-slate-800/60">
+                <span className="text-slate-500 font-sans">今季防御率:</span>
+                <span className="font-bold text-slate-200">{oppPEra}</span>
+              </div>
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-slate-500 font-sans">今季勝敗:</span>
+                <span className="font-bold text-slate-200">
+                  {oppPWins !== undefined && oppPLosses !== undefined ? `${oppPWins}勝 ${oppPLosses}敗` : '-'}
+                </span>
+              </div>
             </div>
-            {/* 今季打率 */}
-            <div className="flex items-center justify-between text-slate-400">
-              <span className="text-slate-500 font-sans">今季打率:</span>
-              <span className="font-bold text-slate-200">{bAvg}</span>
+          ) : (
+            /* 試合中の打者スタッツボックス */
+            <div className="space-y-1 bg-slate-900/80 rounded-xl p-1.5 sm:p-2 border border-slate-800/80 text-[10px] font-mono">
+              <div className="flex items-center justify-between text-slate-300">
+                <span className="text-slate-500 font-sans">今日:</span>
+                <span className="font-bold text-amber-300 truncate max-w-[110px]">
+                  {bAtBats !== undefined && bHits !== undefined
+                    ? `${bAtBats}打数${bHits}安打${bHR ? ` ${bHR}HR` : ''}${bRBI ? ` ${bRBI}点` : ''}`
+                    : bBatting?.summary || '打席中'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-slate-500 font-sans">今季打率:</span>
+                <span className="font-bold text-slate-200">{bAvg}</span>
+              </div>
+              <div className="flex items-center justify-between text-slate-400 pt-1 border-t border-slate-800/60">
+                <span className="text-slate-500 font-sans">今季OPS:</span>
+                <span className="font-bold text-slate-200">{bOps}</span>
+              </div>
+              <div className="flex items-center justify-between text-slate-400">
+                <span className="text-slate-500 font-sans">今季本塁打:</span>
+                <span className="font-bold text-slate-200">
+                  {bSeasonHR !== undefined ? `${bSeasonHR}本` : '-'}
+                </span>
+              </div>
             </div>
-            {/* 今季OPS */}
-            <div className="flex items-center justify-between text-slate-400 pt-1 border-t border-slate-800/60">
-              <span className="text-slate-500 font-sans">今季OPS:</span>
-              <span className="font-bold text-slate-200">{bOps}</span>
-            </div>
-            {/* 今季本塁打 */}
-            <div className="flex items-center justify-between text-slate-400">
-              <span className="text-slate-500 font-sans">今季本塁打:</span>
-              <span className="font-bold text-slate-200">
-                {bSeasonHR !== undefined ? `${bSeasonHR}本` : '-'}
-              </span>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* ネクストバッターズサークル（On Deck） */}
+      {/* ネクストバッターズサークル（または試合開始予定案内） */}
       <div className="mt-2 pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
         <span className="flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
-          次打者 (On-Deck):
+          {showProbables ? '予告先発:' : '次打者 (On-Deck):'}
         </span>
         <span className="text-slate-300 font-medium truncate max-w-[160px]">
-          {onDeck?.fullName ? getPlayerDisplayName(onDeck.fullName) : '未定'}
+          {showProbables
+            ? `${getPlayerDisplayName(activePitcher?.fullName || '')} vs ${getPlayerDisplayName(activeOpponent?.fullName || '')}`
+            : onDeck?.fullName
+            ? getPlayerDisplayName(onDeck.fullName)
+            : '未定'}
         </span>
       </div>
     </div>

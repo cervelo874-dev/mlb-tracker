@@ -326,6 +326,8 @@ export default function App() {
                   onDeck={activeLinescore?.offense?.onDeck}
                   players={players}
                   boxscore={feed?.liveData?.boxscore}
+                  probablePitchers={feed?.gameData?.probablePitchers}
+                  isPreGame={feed?.gameData?.status?.abstractGameState === 'Preview'}
                 />
               </div>
             </div>
