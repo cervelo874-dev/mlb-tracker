@@ -44,14 +44,16 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({ playEvents = [] }) => {
     if (!coords) return null;
 
     if (coords.pX !== undefined && coords.pZ !== undefined) {
-      // 投手視点 -> キャッチャー視点に合わせる (pXはそのままキャッチャー視点：負が右打者の内角、正が外角)
+      // 投手視点 (Pitcher's View):
+      // キャッチャー視点から見て左右が反転するため、-coords.pX で反転
+      const pitcherPX = -coords.pX;
       const minX = -1.6;
       const maxX = 1.6;
       const minZ = 0.8;
       const maxZ = 4.4;
 
-      // X: -1.6 -> 25, +1.6 -> 235
-      const svgX = 25 + ((coords.pX - minX) / (maxX - minX)) * (SVG_WIDTH - 50);
+      // X: -1.6 -> 25, +1.6 -> 235 (左が左打者側、右が右打者側)
+      const svgX = 25 + ((pitcherPX - minX) / (maxX - minX)) * (SVG_WIDTH - 50);
       // Z: maxZ (4.4) -> 30, minZ (0.8) -> 250
       const svgY = 250 - ((coords.pZ - minZ) / (maxZ - minZ)) * 220;
 
@@ -60,7 +62,7 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({ playEvents = [] }) => {
 
     // フォールバック: Gameday x, y (0-250)
     if (coords.x !== undefined && coords.y !== undefined) {
-      return { x: coords.x, y: coords.y };
+      return { x: SVG_WIDTH - coords.x, y: coords.y };
     }
 
     return null;
@@ -93,8 +95,11 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({ playEvents = [] }) => {
       <div className="w-full flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-          <h3 className="text-xs font-bold text-slate-200 tracking-wide">
-            ピッチトラッカー & ストライクゾーン
+          <h3 className="text-xs font-bold text-slate-200 tracking-wide flex items-center gap-1.5">
+            <span>ピッチトラッカー & ストライクゾーン</span>
+            <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-blue-950/80 border border-blue-600/50 text-blue-300">
+              投手視点
+            </span>
           </h3>
         </div>
         <span className="text-[11px] font-mono text-slate-400">
@@ -170,12 +175,12 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({ playEvents = [] }) => {
             strokeDasharray="3,3"
           />
 
-          {/* 打者視点の左右ガイドラベル */}
+          {/* 投手視点の左右ガイドラベル (左が一塁側・左打者、右が三塁側・右打者) */}
           <text x="15" y={SVG_HEIGHT / 2} fill="#64748b" fontSize="10" fontWeight="bold">
-            右打者
+            左打者
           </text>
           <text x={SVG_WIDTH - 45} y={SVG_HEIGHT / 2} fill="#64748b" fontSize="10" fontWeight="bold">
-            左打者
+            右打者
           </text>
 
           {/* 全投球プロット */}
