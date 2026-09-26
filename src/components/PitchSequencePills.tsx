@@ -26,10 +26,10 @@ export const PitchSequencePills: React.FC<PitchSequencePillsProps> = ({
     );
   }
 
-  // 表示する投球リスト（折りたたみ時は最新3球、展開時は全投球）
+  // 表示する投球リスト（折りたたみ時は最新4球、展開時は全投球）
   const totalPitches = pitches.length;
-  const showAll = isExpanded || totalPitches <= 3;
-  const displayedPitches = showAll ? pitches : pitches.slice(totalPitches - 3);
+  const showAll = isExpanded || totalPitches <= 4;
+  const displayedPitches = showAll ? pitches : pitches.slice(totalPitches - 4);
 
   // 判定に応じたバッジ配色
   const getCallBadgeStyle = (code?: string, desc?: string) => {
@@ -99,14 +99,14 @@ export const PitchSequencePills: React.FC<PitchSequencePillsProps> = ({
           </span>
         </div>
 
-        {totalPitches > 3 && (
+        {totalPitches > 4 && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-medium text-xs transition-colors border border-slate-700"
           >
             {isExpanded ? (
               <>
-                <span>最新3球のみ表示</span>
+                <span>最新4球のみ表示</span>
                 <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
               </>
             ) : (
@@ -119,10 +119,10 @@ export const PitchSequencePills: React.FC<PitchSequencePillsProps> = ({
         )}
       </div>
 
-      {/* 投球カード（文字が重ならない2段構成カード＆レスポンシブ配置） */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+      {/* 投球カード（4球対応の均等グリッド: 1列 / 2列 / 4列） */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2.5">
         {displayedPitches.map((pitch, idx) => {
-          const originalIndex = showAll ? idx : totalPitches - 3 + idx;
+          const originalIndex = showAll ? idx : totalPitches - 4 + idx;
           const pitchNumber = pitch.pitchNumber || originalIndex + 1;
           const isLatest = originalIndex === totalPitches - 1;
 

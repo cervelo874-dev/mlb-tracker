@@ -50,10 +50,10 @@ export const HomeRunCelebration: React.FC<HomeRunCelebrationProps> = ({ details,
       });
     }, 350);
 
-    // 6秒後に自動クローズ
+    // 3秒後に自動クローズ
     const timer = setTimeout(() => {
       onClose();
-    }, 6000);
+    }, 3000);
 
     return () => {
       clearInterval(interval);
