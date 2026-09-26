@@ -103,7 +103,7 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({ playEvents = [] }) => {
       </div>
 
       {/* SVG ストライクゾーン */}
-      <div className="relative w-full max-w-[280px] aspect-[260/280] bg-slate-950/80 rounded-2xl border border-slate-800 shadow-inner flex items-center justify-center overflow-hidden">
+      <div className="relative w-full max-w-[340px] sm:max-w-[380px] aspect-[260/280] bg-slate-950/80 rounded-2xl border border-slate-800 shadow-inner flex items-center justify-center overflow-hidden">
         <svg
           viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
           className="w-full h-full select-none"

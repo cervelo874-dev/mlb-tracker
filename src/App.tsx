@@ -253,8 +253,8 @@ export default function App() {
         onTriggerTestHardHit={triggerTestHardHit}
       />
 
-      {/* 2. メインコンテンツ（モバイルファースト・エッジトゥエッジ最適化） */}
-      <main className="flex-1 max-w-2xl w-full mx-auto px-1.5 sm:px-4 py-2.5 sm:py-4 space-y-2.5 sm:space-y-4">
+      {/* 2. メインコンテンツ（画面横幅をフル活用・max-w-5xlでヘッダーと完全一致） */}
+      <main className="flex-1 w-full max-w-5xl mx-auto px-2 sm:px-4 py-2.5 sm:py-4 space-y-2.5 sm:space-y-4">
         {/* シミュレーション操作バー（過去試合やハイライトを1打席ずつリアルタイム追体験できる） */}
         {allPlays.length > 0 && (
           <LiveSimulationBar
