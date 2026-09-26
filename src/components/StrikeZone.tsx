@@ -193,30 +193,31 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({ playEvents = [] }) => {
                 className="cursor-pointer transition-transform duration-200"
                 onClick={() => setSelectedPitchIndex(p.pitchNumber || index + 1)}
               >
-                {/* 最新球の外周グローハイライト（ちらつきを抑えたやわらかな光彩リング） */}
+                {/* 最新球の外周光彩リング（白リングを置き換えた太く鮮やかなグローリング） */}
                 {isLatest && (
                   <circle
                     cx={ptCoords.x}
                     cy={ptCoords.y}
-                    r="15.5"
+                    r="14"
                     fill={colors.bg}
-                    fillOpacity="0.22"
+                    fillOpacity="0.25"
                     stroke={colors.bg}
-                    strokeWidth="2"
+                    strokeWidth="3.5"
                     strokeOpacity="0.9"
                     className="animate-pulse"
                   />
                 )}
 
-                {/* 選択中の球の外枠ハイライト */}
-                {isSelected && (
+                {/* 過去球をクリック選択した際の強調リング（最新球選択時は光彩リングに一本化） */}
+                {isSelected && !isLatest && (
                   <circle
                     cx={ptCoords.x}
                     cy={ptCoords.y}
                     r="14"
                     fill="none"
-                    stroke="#ffffff"
-                    strokeWidth="2.5"
+                    stroke={colors.bg}
+                    strokeWidth="3"
+                    strokeOpacity="0.95"
                   />
                 )}
 
