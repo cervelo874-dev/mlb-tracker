@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import type { PlayEvent } from '../types/mlb';
 import { getPitchCallJapanese, getPitchTypeJapanese, mphToKmh } from '../utils/translator';
 import { Info } from 'lucide-react';
+import batterRhbImg from '../assets/batter-rhb.png';
+import batterLhbImg from '../assets/batter-lhb.png';
 
 interface StrikeZoneProps {
   playEvents: PlayEvent[];
@@ -144,9 +146,12 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({
           className="w-full h-full select-none"
         >
           <defs>
-            {/* バッター立ち絵用ネオングローフィルター */}
-            <filter id="batter-glow" x="-30%" y="-30%" width="160%" height="160%">
-              <feGaussianBlur stdDeviation="2.5" result="blur" />
+            {/* バッター立ち絵用 チームカラーティント＆ネオングローフィルター */}
+            <filter id="batter-tint-glow" x="-20%" y="-20%" width="140%" height="140%">
+              {/* チームカラーの光彩 */}
+              <feFlood floodColor={neonColor} floodOpacity="0.8" result="flood" />
+              <feComposite in="flood" in2="SourceAlpha" operator="in" result="tinted" />
+              <feGaussianBlur in="tinted" stdDeviation="2.5" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -227,169 +232,39 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({
             opacity="0.6"
           />
 
-          {/* バッター立ち絵 (Concept 3: ミニマル・モダンブロードキャストHUD) */}
-          {/* 投手視点: 前肩と顔・ツバがマウンド(手前上)を向き、バットを後ろに引いて投手を見据える正確なフォーム */}
-          <g
-            transform={
-              isLeftHanded
-                ? `translate(40, 248) scale(-1, 1)`
-                : `translate(220, 248)`
-            }
-            filter="url(#batter-glow)"
-          >
-            {/* 足元のホログラム接地サークル */}
-            <ellipse
-              cx="1"
-              cy="-2"
-              rx="18"
-              ry="5.5"
-              fill="none"
-              stroke={neonColor}
-              strokeWidth="1.2"
-              strokeDasharray="4,2"
-              strokeOpacity="0.6"
-            />
-            <ellipse
-              cx="1"
-              cy="-2"
-              rx="11"
-              ry="3.5"
-              fill={neonColor}
-              fillOpacity="0.12"
-            />
+          {/* 足元のホログラム接地サークル */}
+          <ellipse
+            cx={isLeftHanded ? 40 : 220}
+            cy={260}
+            rx={20}
+            ry={5.5}
+            fill="none"
+            stroke={neonColor}
+            strokeWidth="1.2"
+            strokeDasharray="4,2"
+            strokeOpacity="0.7"
+          />
+          <ellipse
+            cx={isLeftHanded ? 40 : 220}
+            cy={260}
+            rx={12}
+            ry={3.5}
+            fill={neonColor}
+            fillOpacity="0.15"
+          />
 
-            {/* スパイク・靴 */}
-            {/* 前足 (左足・マウンド/手前側) */}
-            <polygon
-              points="-14,-8 -4,-8 -3,-12 -13,-12"
-              fill={neonColor}
-              fillOpacity="0.85"
-            />
-            {/* 後足 (右足・キャッチャー/奥側) */}
-            <polygon
-              points="9,0 19,0 18,-4 10,-4"
-              fill={neonColor}
-              fillOpacity="0.85"
-            />
-
-            {/* 脚・パンツ (スタンスをとった引き締まった両足) */}
-            {/* 前脚 (手前マウンド側) */}
-            <path
-              d="M -13,-12 L -4,-12 L -3,-34 C -4,-46 -1,-56 1,-66 L -5,-66 C -8,-56 -12,-44 -11,-34 Z"
-              fill={neonColor}
-              fillOpacity="0.18"
-              stroke={neonColor}
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-            />
-            {/* 後脚 (奥キャッチャー側) */}
-            <path
-              d="M 10,-4 L 18,-4 L 16,-28 C 15,-42 9,-54 4,-66 L 0,-66 C 3,-54 9,-40 12,-28 Z"
-              fill={neonColor}
-              fillOpacity="0.18"
-              stroke={neonColor}
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-            />
-            {/* パンツのサイドストライプ (HUDアクセント) */}
-            <line
-              x1="-8"
-              y1="-64"
-              x2="-8"
-              y2="-34"
-              stroke={neonColor}
-              strokeWidth="1"
-              strokeOpacity="0.7"
-              strokeDasharray="3,2"
-            />
-
-            {/* 胴体・ユニフォーム (胸はホーム側、前肩が手前マウンド側へ張り出す) */}
-            <path
-              d="M -6,-66 L 6,-66 C 10,-76 13,-88 12,-98 C 6,-101 0,-102 -8,-106 C -10,-93 -9,-78 -6,-66 Z"
-              fill={neonColor}
-              fillOpacity="0.22"
-              stroke={neonColor}
-              strokeWidth="1.6"
-              strokeLinejoin="round"
-            />
-            {/* ベルトライン */}
-            <line
-              x1="-5"
-              y1="-66"
-              x2="5"
-              y2="-66"
-              stroke={neonColor}
-              strokeWidth="2"
-              strokeOpacity="0.9"
-            />
-            {/* 前肩〜胸のHUDアクセントライン */}
-            <path
-              d="M -7,-103 C -5,-95 -4,-86 -5,-78"
-              fill="none"
-              stroke={neonColor}
-              strokeWidth="1"
-              strokeOpacity="0.6"
-            />
-
-            {/* 腕 (バットを後ろに引いて構える両腕) */}
-            {/* 後腕 (引き手・右腕) */}
-            <path
-              d="M 12,-98 Q 17,-90 14,-86 L 6,-92"
-              fill="none"
-              stroke={neonColor}
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            {/* 前腕 (押し手・左腕、前肩から伸びる) */}
-            <path
-              d="M -8,-106 Q -4,-98 -1,-93 L 6,-92"
-              fill="none"
-              stroke={neonColor}
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            {/* バッティンググローブ・手元 */}
-            <circle cx="6" cy="-92" r="2.5" fill={neonColor} />
-
-            {/* バット (右肩奥から上方へ立てる) */}
-            <polygon
-              points="5,-90 7,-93 19,-146 16,-147"
-              fill={neonColor}
-              fillOpacity="0.9"
-              stroke={neonColor}
-              strokeWidth="1"
-            />
-            <circle cx="17.5" cy="-146.5" r="2" fill={neonColor} />
-
-            {/* 頭部・ヘルメット (最重要: 投手方向[手前上]をしっかり見据える) */}
-            <ellipse
-              cx="-1.5"
-              cy="-119"
-              rx="7.5"
-              ry="8"
-              fill={neonColor}
-              fillOpacity="0.3"
-              stroke={neonColor}
-              strokeWidth="1.6"
-            />
-            {/* ヘルメットのツバ (マウンド・投手方向[斜め手前上]へ向く) */}
-            <path
-              d="M -5,-122 C -7,-127 -6,-131 -4,-131 C -1,-130 1,-126 2,-124 Z"
-              fill={neonColor}
-              fillOpacity="0.9"
-            />
-            {/* イヤーフラップ (手前左耳側) */}
-            <path
-              d="M -5,-120 L -6,-113 L -2,-113"
-              fill="none"
-              stroke={neonColor}
-              strokeWidth="1.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </g>
+          {/* バッター立ち絵 (高精細アスリートホログラムPNG) */}
+          {/* 投手視点: マウンド(手前上)を鋭く見据え、前肩を出しバットを引いた正確なフォーム */}
+          <image
+            href={isLeftHanded ? batterLhbImg : batterRhbImg}
+            x={isLeftHanded ? 6 : 186}
+            y={92}
+            width={68}
+            height={168}
+            opacity={0.55}
+            filter="url(#batter-tint-glow)"
+            style={{ pointerEvents: 'none' }}
+          />
 
           {/* ストライクゾーン外枠 (9分割グリッド) */}
           <rect
