@@ -253,8 +253,8 @@ export default function App() {
         onTriggerTestHardHit={triggerTestHardHit}
       />
 
-      {/* 2. メインコンテンツ（モバイルファースト） */}
-      <main className="flex-1 max-w-2xl w-full mx-auto px-3 sm:px-4 py-4 space-y-4">
+      {/* 2. メインコンテンツ（モバイルファースト・エッジトゥエッジ最適化） */}
+      <main className="flex-1 max-w-2xl w-full mx-auto px-1.5 sm:px-4 py-2.5 sm:py-4 space-y-2.5 sm:space-y-4">
         {/* シミュレーション操作バー（過去試合やハイライトを1打席ずつリアルタイム追体験できる） */}
         {allPlays.length > 0 && (
           <LiveSimulationBar
@@ -293,9 +293,9 @@ export default function App() {
             />
 
             {/* ② ダイヤモンド走者 & BSOカウント & 打者・投手対決 (左右均等グリッド) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 items-stretch">
               {/* 左: ダイヤモンド走者 & BSO カウントランプ */}
-              <div className="glass-panel rounded-2xl p-3.5 border border-slate-700/60 shadow-lg flex flex-col justify-between h-full">
+              <div className="glass-panel rounded-2xl p-2.5 sm:p-3.5 border border-slate-700/60 shadow-lg flex flex-col justify-between h-full">
                 <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-800/80">
                   <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
                     フィールド状況

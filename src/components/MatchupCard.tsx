@@ -66,7 +66,7 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
   const bSeasonHR = bSeason?.homeRuns;
 
   return (
-    <div className="w-full h-full glass-panel rounded-2xl p-3.5 border border-slate-700/60 shadow-lg flex flex-col justify-between">
+    <div className="w-full h-full glass-panel rounded-2xl p-2.5 sm:p-3.5 border border-slate-700/60 shadow-lg flex flex-col justify-between">
       {/* 上部ヘッダー（フィールド状況カードと対称） */}
       <div className="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-800/80">
         <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
@@ -118,7 +118,7 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
           </div>
 
           {/* 投手スタッツボックス */}
-          <div className="space-y-1 bg-slate-900/80 rounded-xl p-2 border border-slate-800/80 text-[10px] font-mono">
+          <div className="space-y-1 bg-slate-900/80 rounded-xl p-1.5 sm:p-2 border border-slate-800/80 text-[10px] font-mono">
             {/* 今日 */}
             <div className="flex items-center justify-between text-slate-300">
               <span className="text-slate-500 font-sans">今日:</span>
@@ -185,7 +185,7 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
           </div>
 
           {/* 打者スタッツボックス（OPSと本塁打を個別行に分離） */}
-          <div className="space-y-1 bg-slate-900/80 rounded-xl p-2 border border-slate-800/80 text-[10px] font-mono">
+          <div className="space-y-1 bg-slate-900/80 rounded-xl p-1.5 sm:p-2 border border-slate-800/80 text-[10px] font-mono">
             {/* 今日 */}
             <div className="flex items-center justify-between text-slate-300">
               <span className="text-slate-500 font-sans">今日:</span>

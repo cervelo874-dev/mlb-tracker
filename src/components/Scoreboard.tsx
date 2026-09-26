@@ -62,7 +62,7 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
   return (
     <div className="w-full rounded-2xl glass-panel-glow overflow-hidden shadow-2xl border border-slate-700/80">
       {/* 上部ヘッダーバー: 試合ステータスとイニング */}
-      <div className="px-4 py-2.5 bg-gradient-to-r from-slate-900/95 via-slate-800/95 to-slate-900/95 border-b border-slate-700/60 flex items-center justify-between">
+      <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-slate-900/95 via-slate-800/95 to-slate-900/95 border-b border-slate-700/60 flex items-center justify-between">
         <div className="flex items-center gap-2">
           {state === 'Live' ? (
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-600/20 text-rose-400 border border-rose-500/30 animate-pulse">
@@ -102,10 +102,10 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
       </div>
 
       {/* メインスコアエリア */}
-      <div className="p-4 grid grid-cols-7 items-center gap-2">
+      <div className="p-2.5 sm:p-4 grid grid-cols-7 items-center gap-1.5 sm:gap-2">
         {/* ビジターチーム */}
         <div className="col-span-3 flex flex-col items-center text-center">
-          <div className="relative w-14 h-14 sm:w-16 sm:h-16 mb-2 p-1.5 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shadow-lg group hover:scale-105 transition-transform">
+          <div className="relative w-12 h-12 sm:w-16 sm:h-16 mb-1.5 sm:mb-2 p-1 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shadow-lg group hover:scale-105 transition-transform">
             {awayMeta?.logo ? (
               <img
                 src={awayMeta.logo}
@@ -158,7 +158,7 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
 
         {/* ホームチーム */}
         <div className="col-span-3 flex flex-col items-center text-center">
-          <div className="relative w-14 h-14 sm:w-16 sm:h-16 mb-2 p-1.5 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shadow-lg group hover:scale-105 transition-transform">
+          <div className="relative w-12 h-12 sm:w-16 sm:h-16 mb-1.5 sm:mb-2 p-1 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shadow-lg group hover:scale-105 transition-transform">
             {homeMeta?.logo ? (
               <img
                 src={homeMeta.logo}

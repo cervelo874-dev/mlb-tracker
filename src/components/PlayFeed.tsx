@@ -20,7 +20,7 @@ export const PlayFeed: React.FC<PlayFeedProps> = ({ plays = [], className = '' }
     : sortedPlays;
 
   return (
-    <div className={`w-full glass-panel rounded-2xl p-4 border border-slate-700/60 shadow-xl flex flex-col ${className}`}>
+    <div className={`w-full glass-panel rounded-2xl p-2.5 sm:p-4 border border-slate-700/60 shadow-xl flex flex-col ${className}`}>
       {/* タイムラインヘッダー & フィルター */}
       <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
         <div className="flex items-center gap-2">
@@ -89,7 +89,7 @@ export const PlayFeed: React.FC<PlayFeedProps> = ({ plays = [], className = '' }
             return (
               <div
                 key={`play-${play.about?.atBatIndex ?? idx}`}
-                className={`relative rounded-xl p-3 border transition-all ${
+                className={`relative rounded-xl p-2.5 sm:p-3 border transition-all ${
                   translated.isHomeRun
                     ? 'bg-gradient-to-r from-amber-950/40 via-slate-900 to-amber-950/30 border-amber-500/70 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
                     : isScoring

@@ -86,7 +86,7 @@ export const PitchSequencePills: React.FC<PitchSequencePillsProps> = ({
   };
 
   return (
-    <div className={`w-full glass-panel rounded-2xl p-3 sm:p-3.5 border border-slate-700/60 shadow-lg ${className}`}>
+    <div className={`w-full glass-panel rounded-2xl p-2.5 sm:p-3.5 border border-slate-700/60 shadow-lg ${className}`}>
       {/* ヘッダー & アコーディオン切り替えボタン */}
       <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-800/80 text-xs">
         <div className="flex items-center gap-2 text-slate-300">
@@ -145,7 +145,7 @@ export const PitchSequencePills: React.FC<PitchSequencePillsProps> = ({
           return (
             <div
               key={`pill-${pitchNumber}`}
-              className={`p-2.5 rounded-xl border flex flex-col justify-between gap-2 text-xs transition-all shadow-sm ${styles.container}`}
+              className={`p-2 sm:p-2.5 rounded-xl border flex flex-col justify-between gap-1.5 sm:gap-2 text-xs transition-all shadow-sm ${styles.container}`}
             >
               {/* 【上段】: 球番・球種 & 球速 (km/h) */}
               <div className="flex items-center justify-between gap-2">

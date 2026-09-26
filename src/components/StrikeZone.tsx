@@ -88,7 +88,7 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({ playEvents = [] }) => {
   };
 
   return (
-    <div className="w-full glass-panel rounded-2xl p-3.5 border border-slate-700/60 shadow-xl flex flex-col items-center">
+    <div className="w-full glass-panel rounded-2xl p-2.5 sm:p-3.5 border border-slate-700/60 shadow-xl flex flex-col items-center">
       {/* タイトルと球数 */}
       <div className="w-full flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5">
