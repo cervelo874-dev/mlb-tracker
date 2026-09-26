@@ -19,6 +19,7 @@ import { GameSelectorModal } from './components/GameSelectorModal';
 import { HighlightHistoryModal } from './components/HighlightHistoryModal';
 import { LiveSimulationBar } from './components/LiveSimulationBar';
 import { DEMO_GAMES } from './constants/demoGames';
+import { getTeamMeta } from './constants/teams';
 import type { Play, Linescore } from './types/mlb';
 import { Sparkles, RefreshCw } from 'lucide-react';
 
@@ -151,6 +152,13 @@ export default function App() {
       },
     };
   }, [isSimulating, activeCurrentPlay, linescore]);
+
+  // 現在の攻撃チーム情報（打席バッターのチームカラー用）
+  const battingTeamMeta = useMemo(() => {
+    const isTop = activeLinescore?.isTopInning ?? (activeCurrentPlay?.about?.halfInning === 'top');
+    const battingTeam = isTop ? teams?.away : teams?.home;
+    return battingTeam ? getTeamMeta(battingTeam.id, battingTeam.name) : undefined;
+  }, [activeLinescore, activeCurrentPlay, teams]);
 
   // シミュレーションの自動再生タイマー
   useEffect(() => {
@@ -382,6 +390,8 @@ export default function App() {
               playEvents={activeCurrentPlay?.playEvents || []}
               batterName={activeCurrentPlay?.matchup?.batter?.fullName}
               pitcherName={activeCurrentPlay?.matchup?.pitcher?.fullName}
+              batSide={activeCurrentPlay?.matchup?.batSide?.code}
+              teamColor={battingTeamMeta?.primaryColor}
             />
 
             {/* ④ 日本語実況フィード & Statcast詳細 */}

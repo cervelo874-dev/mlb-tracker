@@ -7,10 +7,25 @@ interface StrikeZoneProps {
   playEvents: PlayEvent[];
   batterName?: string;
   pitcherName?: string;
+  batSide?: string;
+  teamColor?: string;
 }
 
-export const StrikeZone: React.FC<StrikeZoneProps> = ({ playEvents = [] }) => {
+export const StrikeZone: React.FC<StrikeZoneProps> = ({
+  playEvents = [],
+  batterName,
+  pitcherName,
+  batSide,
+  teamColor,
+}) => {
   const [selectedPitchIndex, setSelectedPitchIndex] = useState<number | null>(null);
+
+  // 打者打席 (L: 左打者, R: 右打者, S: スイッチヒッター)
+  // 投手視点 (マウンドからキャッチャー方向):
+  // 左打者 (L): 画面左側 (一塁側)
+  // 右打者 (R): 画面右側 (三塁側)
+  const isLeftHanded = batSide === 'L';
+  const neonColor = teamColor && teamColor !== '#000000' && teamColor !== '#27251F' ? teamColor : '#38bdf8';
 
   // 投球イベントのみを抽出
   const pitches = playEvents.filter((e) => e.isPitch && e.pitchData);
@@ -92,7 +107,7 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({ playEvents = [] }) => {
   return (
     <div className="w-full glass-panel rounded-2xl p-2.5 sm:p-3.5 border border-slate-700/60 shadow-xl flex flex-col items-center">
       {/* タイトルと球数 */}
-      <div className="w-full flex items-center justify-between mb-2">
+      <div className="w-full flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
           <h3 className="text-xs font-bold text-slate-200 tracking-wide flex items-center gap-1.5">
@@ -107,20 +122,261 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({ playEvents = [] }) => {
         </span>
       </div>
 
+      {/* 対戦情報 (投手 vs 打者) */}
+      {(pitcherName || batterName) && (
+        <div className="w-full flex items-center justify-between text-[11px] text-slate-400 mb-2 px-1 pb-1.5 border-b border-slate-800/80">
+          <div className="truncate max-w-[48%]">
+            <span className="text-[10px] text-slate-500 mr-1">投:</span>
+            <span className="text-slate-300 font-medium truncate">{pitcherName || '投手'}</span>
+          </div>
+          <span className="text-slate-600 text-[10px] font-bold">vs</span>
+          <div className="truncate max-w-[48%] text-right">
+            <span className="text-[10px] text-slate-500 mr-1">打:</span>
+            <span className="text-slate-300 font-medium truncate">{batterName || '打者'}</span>
+          </div>
+        </div>
+      )}
+
       {/* SVG ストライクゾーン */}
       <div className="relative w-full max-w-[340px] sm:max-w-[380px] aspect-[260/280] bg-slate-950/80 rounded-2xl border border-slate-800 shadow-inner flex items-center justify-center overflow-hidden">
         <svg
           viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
           className="w-full h-full select-none"
         >
-          {/* 背景のホームベース (下部) */}
+          <defs>
+            {/* バッター立ち絵用ネオングローフィルター */}
+            <filter id="batter-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="2.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            {/* 打席ボックスの床面グラデーション */}
+            <linearGradient id="batterBoxGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={neonColor} stopOpacity="0.08" />
+              <stop offset="100%" stopColor={neonColor} stopOpacity="0.02" />
+            </linearGradient>
+          </defs>
+
+          {/* 左打席ボックス (画面左・一塁側) */}
+          <rect
+            x="12"
+            y="65"
+            width="56"
+            height="205"
+            rx="8"
+            fill={isLeftHanded ? "url(#batterBoxGrad)" : "rgba(15, 23, 42, 0.4)"}
+            stroke={isLeftHanded ? neonColor : "#334155"}
+            strokeWidth={isLeftHanded ? "1.5" : "1"}
+            strokeDasharray={isLeftHanded ? "none" : "3,3"}
+            strokeOpacity={isLeftHanded ? "0.8" : "0.5"}
+          />
+          {/* 左打席インジケーター L */}
+          <text
+            x="40"
+            y="56"
+            textAnchor="middle"
+            fill={isLeftHanded ? neonColor : "#475569"}
+            fontSize="9"
+            fontWeight="bold"
+            fontFamily="monospace"
+          >
+            L
+          </text>
+
+          {/* 右打席ボックス (画面右・三塁側) */}
+          <rect
+            x="192"
+            y="65"
+            width="56"
+            height="205"
+            rx="8"
+            fill={!isLeftHanded ? "url(#batterBoxGrad)" : "rgba(15, 23, 42, 0.4)"}
+            stroke={!isLeftHanded ? neonColor : "#334155"}
+            strokeWidth={!isLeftHanded ? "1.5" : "1"}
+            strokeDasharray={!isLeftHanded ? "none" : "3,3"}
+            strokeOpacity={!isLeftHanded ? "0.8" : "0.5"}
+          />
+          {/* 右打席インジケーター R */}
+          <text
+            x="220"
+            y="56"
+            textAnchor="middle"
+            fill={!isLeftHanded ? neonColor : "#475569"}
+            fontSize="9"
+            fontWeight="bold"
+            fontFamily="monospace"
+          >
+            R
+          </text>
+
+          {/* ホームベース (投手視点: 尖った頂点が上[投手方向]、底辺が下[捕手方向]) */}
           <polygon
-            points={`${SVG_WIDTH / 2 - 25},265 ${SVG_WIDTH / 2 + 25},265 ${SVG_WIDTH / 2 + 25},272 ${SVG_WIDTH / 2},278 ${SVG_WIDTH / 2 - 25},272`}
-            fill="#334155"
+            points={`${SVG_WIDTH / 2},263 ${SVG_WIDTH / 2 + 25},270 ${SVG_WIDTH / 2 + 25},278 ${SVG_WIDTH / 2 - 25},278 ${SVG_WIDTH / 2 - 25},270`}
+            fill="#1e293b"
             stroke="#64748b"
             strokeWidth="1.5"
-            opacity="0.8"
+            opacity="0.9"
           />
+          <polygon
+            points={`${SVG_WIDTH / 2},266 ${SVG_WIDTH / 2 + 21},272 ${SVG_WIDTH / 2 + 21},276 ${SVG_WIDTH / 2 - 21},276 ${SVG_WIDTH / 2 - 21},272`}
+            fill="none"
+            stroke="#475569"
+            strokeWidth="1"
+            opacity="0.6"
+          />
+
+          {/* バッター立ち絵 (ネオン・サイバースタイル) */}
+          <g
+            transform={
+              isLeftHanded
+                ? `translate(40, 245) scale(-1, 1)`
+                : `translate(220, 245)`
+            }
+            filter="url(#batter-glow)"
+          >
+            {/* 足元のホログラム台座サークル */}
+            <ellipse
+              cx="1"
+              cy="0"
+              rx="18"
+              ry="5"
+              fill="none"
+              stroke={neonColor}
+              strokeWidth="1"
+              strokeDasharray="4,2"
+              strokeOpacity="0.7"
+            />
+            <ellipse
+              cx="1"
+              cy="0"
+              rx="11"
+              ry="3"
+              fill={neonColor}
+              fillOpacity="0.12"
+            />
+
+            {/* スパイク・靴 */}
+            <polygon
+              points="-15,0 -4,0 -3,-4 -14,-4"
+              fill={neonColor}
+              fillOpacity="0.85"
+            />
+            <polygon
+              points="9,0 19,0 18,-4 10,-4"
+              fill={neonColor}
+              fillOpacity="0.85"
+            />
+
+            {/* 脚・パンツ (スタンスをとった両足) */}
+            {/* 前脚 (ホームベース側) */}
+            <path
+              d="M -14,-4 L -5,-4 L -4,-28 C -5,-42 -2,-54 0,-64 L -6,-64 C -9,-54 -13,-40 -11,-28 Z"
+              fill={neonColor}
+              fillOpacity="0.22"
+              stroke={neonColor}
+              strokeWidth="1.4"
+              strokeLinejoin="round"
+            />
+            {/* 後脚 (キャッチャー側) */}
+            <path
+              d="M 10,-4 L 18,-4 L 16,-28 C 15,-42 9,-54 4,-64 L 0,-64 C 3,-54 9,-40 12,-28 Z"
+              fill={neonColor}
+              fillOpacity="0.22"
+              stroke={neonColor}
+              strokeWidth="1.4"
+              strokeLinejoin="round"
+            />
+
+            {/* 胴体・ユニフォーム */}
+            <path
+              d="M -7,-64 L 7,-64 C 11,-76 13,-90 12,-102 C 6,-105 -1,-105 -8,-102 C -10,-90 -9,-76 -7,-64 Z"
+              fill={neonColor}
+              fillOpacity="0.28"
+              stroke={neonColor}
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+            {/* ベルトライン & サイバーアクセント */}
+            <line
+              x1="-6"
+              y1="-65"
+              x2="6"
+              y2="-65"
+              stroke={neonColor}
+              strokeWidth="2"
+              strokeOpacity="0.9"
+            />
+            <line
+              x1="-5"
+              y1="-83"
+              x2="5"
+              y2="-83"
+              stroke={neonColor}
+              strokeWidth="1"
+              strokeDasharray="2,2"
+              strokeOpacity="0.6"
+            />
+
+            {/* 腕 (バットを構える両腕) */}
+            {/* 後腕 (引き手) */}
+            <path
+              d="M 11,-102 Q 17,-92 14,-87 L 4,-89"
+              fill="none"
+              stroke={neonColor}
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            {/* 前腕 (押し手) */}
+            <path
+              d="M -8,-102 Q -5,-94 -2,-90 L 3,-89"
+              fill="none"
+              stroke={neonColor}
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            {/* バッティンググローブ */}
+            <circle cx="4" cy="-89" r="2.5" fill={neonColor} />
+
+            {/* バット */}
+            <polygon
+              points="3,-88 5,-90 19,-142 16,-143"
+              fill={neonColor}
+              fillOpacity="0.9"
+              stroke={neonColor}
+              strokeWidth="1"
+            />
+            <circle cx="17.5" cy="-142.5" r="2" fill={neonColor} />
+
+            {/* 頭部・ヘルメット */}
+            <ellipse
+              cx="-1.5"
+              cy="-116"
+              rx="7.5"
+              ry="8"
+              fill={neonColor}
+              fillOpacity="0.35"
+              stroke={neonColor}
+              strokeWidth="1.5"
+            />
+            {/* ヘルメットのツバ */}
+            <path
+              d="M -6,-114 Q -12,-115 -15,-117 Q -11,-120 -5,-119 Z"
+              fill={neonColor}
+              fillOpacity="0.85"
+            />
+            {/* イヤーフラップ */}
+            <path
+              d="M -3,-114 L -3,-109 L 1,-109 L 1,-114"
+              fill="none"
+              stroke={neonColor}
+              strokeWidth="1.4"
+              strokeLinejoin="round"
+            />
+          </g>
 
           {/* ストライクゾーン外枠 (9分割グリッド) */}
           <rect
@@ -174,14 +430,6 @@ export const StrikeZone: React.FC<StrikeZoneProps> = ({ playEvents = [] }) => {
             strokeWidth="1"
             strokeDasharray="3,3"
           />
-
-          {/* 投手視点の左右ガイドラベル (左が一塁側・左打者、右が三塁側・右打者) */}
-          <text x="15" y={SVG_HEIGHT / 2} fill="#64748b" fontSize="10" fontWeight="bold">
-            左打者
-          </text>
-          <text x={SVG_WIDTH - 45} y={SVG_HEIGHT / 2} fill="#64748b" fontSize="10" fontWeight="bold">
-            右打者
-          </text>
 
           {/* 全投球プロット */}
           {pitches.map((p, index) => {
