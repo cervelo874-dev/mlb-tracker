@@ -12,6 +12,8 @@ interface HeaderProps {
   isFetching?: boolean;
   onTriggerTestHomeRun: () => void;
   onTriggerTestHardHit: () => void;
+  homeRunCount?: number;
+  hardHitCount?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -24,6 +26,8 @@ export const Header: React.FC<HeaderProps> = ({
   isFetching = false,
   onTriggerTestHomeRun,
   onTriggerTestHardHit,
+  homeRunCount = 0,
+  hardHitCount = 0,
 }) => {
   // 日付の前後移動
   const handlePrevDay = () => {
@@ -132,24 +136,24 @@ export const Header: React.FC<HeaderProps> = ({
               <span>試合切替 / 名勝負</span>
             </button>
 
-            {/* HR演出テストボタン */}
+            {/* HR履歴 & 演出ボタン */}
             <button
               onClick={onTriggerTestHomeRun}
-              className="px-2 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/60 text-[11px] font-extrabold text-amber-300 flex items-center gap-1 transition-all shadow-sm active:scale-95"
-              title="ホームラン演出（Confetti+振動）をテスト"
+              className="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/60 text-[11px] font-extrabold text-amber-300 flex items-center gap-1 transition-all shadow-sm active:scale-95"
+              title="この試合の本塁打履歴 & 演出再生"
             >
               <Sparkles className="w-3 h-3 text-amber-400 fill-current" />
-              <span>HR演出</span>
+              <span>HR{homeRunCount > 0 ? ` (${homeRunCount})` : ''}</span>
             </button>
 
-            {/* 100mph テストボタン */}
+            {/* 100mph ハードヒット履歴 & 演出ボタン */}
             <button
               onClick={onTriggerTestHardHit}
-              className="px-2 py-1 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/60 text-[11px] font-extrabold text-rose-300 flex items-center gap-1 transition-all shadow-sm active:scale-95"
-              title="100mph超ハードヒット演出をテスト"
+              className="px-2.5 py-1 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/60 text-[11px] font-extrabold text-rose-300 flex items-center gap-1 transition-all shadow-sm active:scale-95"
+              title="この試合の100mph超ハードヒット履歴 & 演出再生"
             >
               <Flame className="w-3 h-3 text-rose-400 fill-current" />
-              <span>100mph</span>
+              <span>100mph{hardHitCount > 0 ? ` (${hardHitCount})` : ''}</span>
             </button>
           </div>
         </div>

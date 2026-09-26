@@ -16,6 +16,7 @@ import { HardHitAlert } from './components/HardHitAlert';
 import type { HardHitAlertData } from './components/HardHitAlert';
 import { TeamSelectorModal } from './components/TeamSelectorModal';
 import { GameSelectorModal } from './components/GameSelectorModal';
+import { HighlightHistoryModal } from './components/HighlightHistoryModal';
 import { LiveSimulationBar } from './components/LiveSimulationBar';
 import { DEMO_GAMES } from './constants/demoGames';
 import type { Play, Linescore } from './types/mlb';
@@ -33,6 +34,8 @@ export default function App() {
   // 3. モーダル開閉ステート
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [isGameModalOpen, setIsGameModalOpen] = useState(false);
+  const [isHighlightModalOpen, setIsHighlightModalOpen] = useState(false);
+  const [highlightModalTab, setHighlightModalTab] = useState<'homerun' | 'hardhit'>('homerun');
 
   // 4. 当日スケジュール取得
   const {
@@ -243,6 +246,29 @@ export default function App() {
     }
   }, [isScheduleLoading, games, selectedGamePk]);
 
+  // 現在の試合のHRプレイ一覧
+  const currentHomeRunPlays = useMemo(() => {
+    return allPlays.filter((play) => {
+      const ev = (play.result?.event || '').toLowerCase();
+      const evType = (play.result?.eventType || '').toLowerCase();
+      const desc = (play.result?.description || '').toLowerCase();
+      return (
+        ev.includes('home run') ||
+        evType.includes('home_run') ||
+        desc.includes('homers') ||
+        desc.includes('grand slam')
+      );
+    });
+  }, [allPlays]);
+
+  // 現在の試合の100mph超ハードヒットプレイ一覧
+  const currentHardHitPlays = useMemo(() => {
+    return allPlays.filter((play) => {
+      const hitEvent = play.playEvents?.find((e) => e.hitData?.launchSpeed);
+      return hitEvent?.hitData?.launchSpeed && hitEvent.hitData.launchSpeed >= 100.0;
+    });
+  }, [allPlays]);
+
   return (
     <div className="min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col antialiased">
       {/* 1. アプリヘッダー */}
@@ -257,8 +283,16 @@ export default function App() {
         }}
         onRefresh={handleRefreshAll}
         isFetching={isScheduleFetching || isFeedFetching}
-        onTriggerTestHomeRun={triggerTestHomeRun}
-        onTriggerTestHardHit={triggerTestHardHit}
+        onTriggerTestHomeRun={() => {
+          setHighlightModalTab('homerun');
+          setIsHighlightModalOpen(true);
+        }}
+        onTriggerTestHardHit={() => {
+          setHighlightModalTab('hardhit');
+          setIsHighlightModalOpen(true);
+        }}
+        homeRunCount={currentHomeRunPlays.length}
+        hardHitCount={currentHardHitPlays.length}
       />
 
       {/* 2. メインコンテンツ（画面横幅をフル活用・max-w-5xlでヘッダーと完全一致） */}
@@ -425,6 +459,28 @@ export default function App() {
         onSelectGame={handleSelectGame}
         currentDate={selectedDate}
         onDateChange={(d) => setSelectedDate(d)}
+      />
+
+      {/* 3. ハイライト（本塁打 & ハードヒット）履歴モーダル */}
+      <HighlightHistoryModal
+        isOpen={isHighlightModalOpen}
+        onClose={() => setIsHighlightModalOpen(false)}
+        initialTab={highlightModalTab}
+        allPlays={allPlays}
+        onTriggerHomeRunPreview={(play) => {
+          if (play) {
+            handleHomeRunDetected(play);
+          } else {
+            triggerTestHomeRun();
+          }
+        }}
+        onTriggerHardHitPreview={(speed, play) => {
+          if (speed && play) {
+            handleHardHitDetected(speed, play);
+          } else {
+            triggerTestHardHit();
+          }
+        }}
       />
     </div>
   );
