@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { triggerVibration, VIBRATION_PATTERNS } from '../utils/vibrate';
 import { getPlayerDisplayName, mphToKmh } from '../utils/translator';
 import { Flame, X } from 'lucide-react';
@@ -16,26 +16,29 @@ interface HardHitAlertProps {
 }
 
 export const HardHitAlert: React.FC<HardHitAlertProps> = ({ data, onClose }) => {
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
     if (!data) return;
 
     // 触覚フィードバック
     triggerVibration(VIBRATION_PATTERNS.hardHit);
 
-    // 4.5秒後に自動消去
+    // 5秒後に自動消去
     const timer = setTimeout(() => {
-      onClose();
-    }, 4500);
+      onCloseRef.current();
+    }, 5000);
 
     return () => clearTimeout(timer);
-  }, [data, onClose]);
+  }, [data]);
 
   if (!data) return null;
 
   const kmh = mphToKmh(data.speed);
 
   return (
-    <div className="fixed top-5 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-md animate-bounce">
+    <div className="fixed top-5 left-1/2 -translate-x-1/2 sm:left-auto sm:right-5 sm:translate-x-0 z-40 w-[92%] sm:w-auto sm:min-w-[320px] sm:max-w-md animate-fade-in">
       <div className="relative rounded-2xl bg-gradient-to-r from-red-700 via-rose-600 to-amber-600 p-3.5 shadow-[0_0_30px_rgba(239,68,68,0.7)] border-2 border-amber-300 text-white flex items-center justify-between overflow-hidden">
         {/* 光線背景 */}
         <div className="absolute inset-0 bg-white/10 animate-pulse" />

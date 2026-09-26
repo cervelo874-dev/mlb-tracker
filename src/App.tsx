@@ -80,6 +80,14 @@ export default function App() {
     });
   }, []);
 
+  const handleCloseHomeRun = useCallback(() => {
+    setHomeRunDetails(null);
+  }, []);
+
+  const handleCloseHardHit = useCallback(() => {
+    setHardHitData(null);
+  }, []);
+
   // 7. ライブフィード取得 (進行中なら5秒ポーリング)
   const {
     feed,
@@ -381,13 +389,13 @@ export default function App() {
       {/* 1. ホームラン演出（全画面Confetti + 振動 + ネオンゴールドバナー） */}
       <HomeRunCelebration
         details={homeRunDetails}
-        onClose={() => setHomeRunDetails(null)}
+        onClose={handleCloseHomeRun}
       />
 
       {/* 2. 100mph超ハードヒットアラート（炎アイコン + 赤色パルスバッジ + 振動） */}
       <HardHitAlert
         data={hardHitData}
-        onClose={() => setHardHitData(null)}
+        onClose={handleCloseHardHit}
       />
 
       {/* モーダル */}
