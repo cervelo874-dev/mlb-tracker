@@ -2,6 +2,7 @@ import React from 'react';
 import type { ScheduleGame } from '../types/mlb';
 import { DEMO_GAMES } from '../constants/demoGames';
 import { getTeamMeta } from '../constants/teams';
+import { getGameJstTimeString, getJstTodayDateString, shiftJstDateString } from '../utils/date';
 import { Calendar, Trophy, X, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface GameSelectorModalProps {
@@ -23,48 +24,30 @@ export const GameSelectorModal: React.FC<GameSelectorModalProps> = ({
   currentDate,
   onDateChange,
 }) => {
-  // 今日の日付文字列 (YYYY-MM-DD)
+  // 今日の日本時間日付文字列 (YYYY-MM-DD)
   const todayStr = React.useMemo(() => {
-    return new Date().toISOString().split('T')[0];
+    return getJstTodayDateString();
   }, []);
 
-  // 日付の前後シフト処理（タイムゾーンの安全なパース）
+  // 日付の前後シフト処理（日本時間基準）
   const shiftDate = (days: number) => {
-    try {
-      const parts = currentDate.split('-').map(Number);
-      const d = new Date(parts[0], parts[1] - 1, parts[2]);
-      d.setDate(d.getDate() + days);
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const dt = String(d.getDate()).padStart(2, '0');
-      onDateChange(`${y}-${m}-${dt}`);
-    } catch {
-      // フォールバック
-      const d = new Date();
-      onDateChange(d.toISOString().split('T')[0]);
-    }
+    onDateChange(shiftJstDateString(currentDate, days));
   };
 
-  // 直近の日付ピル生成（今日または選択日を基準にした前後4日間）
+  // 直近の日付ピル生成（日本時間の今日を基準にした前後4日間）
   const quickDates = React.useMemo(() => {
     const daysJa = ['日', '月', '火', '水', '木', '金', '土'];
     const result = [];
-    const baseDate = new Date(); // 今日を基準
 
     for (let offset = -4; offset <= 3; offset++) {
-      const d = new Date(baseDate);
-      d.setDate(baseDate.getDate() + offset);
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const dt = String(d.getDate()).padStart(2, '0');
-      const dateStr = `${y}-${m}-${dt}`;
-      const month = d.getMonth() + 1;
-      const day = d.getDate();
+      const dateStr = shiftJstDateString(todayStr, offset);
+      const [, month, day] = dateStr.split('-');
+      const d = new Date(dateStr + 'T00:00:00+09:00');
       const dayOfWeek = daysJa[d.getDay()];
 
       result.push({
         dateStr,
-        displayDate: `${month}/${day}`,
+        displayDate: `${Number(month)}/${Number(day)}`,
         dayOfWeek,
         isToday: dateStr === todayStr,
       });
@@ -221,12 +204,12 @@ export const GameSelectorModal: React.FC<GameSelectorModalProps> = ({
           {/* ② 選択された日付の試合一覧 */}
           <div>
             <div className="flex items-center justify-between mb-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
-              <span>{currentDate} の全試合 ({games.length} 試合)</span>
+              <span>{currentDate} の全試合 (日本時間 {games.length} 試合)</span>
             </div>
 
             {games.length === 0 ? (
               <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800 text-center text-xs text-slate-500">
-                この日付の試合データはありません（上の「伝説の名勝負」をお試しください）
+                この日付（日本時間）の試合データはありません（上の「伝説の名勝負」をお試しください）
               </div>
             ) : (
               <div className="space-y-1.5">
@@ -234,6 +217,7 @@ export const GameSelectorModal: React.FC<GameSelectorModalProps> = ({
                   const awayMeta = getTeamMeta(g.teams.away.team.id, g.teams.away.team.name);
                   const homeMeta = getTeamMeta(g.teams.home.team.id, g.teams.home.team.name);
                   const isSelected = g.gamePk === currentGamePk;
+                  const jstTime = getGameJstTimeString(g.gameDate);
 
                   return (
                     <button
@@ -280,7 +264,10 @@ export const GameSelectorModal: React.FC<GameSelectorModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="text-right">
+                      <div className="flex items-center gap-2 text-right">
+                        <span className="text-[11px] font-mono text-slate-400 font-bold">
+                          {jstTime}
+                        </span>
                         <span
                           className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
                             g.status.abstractGameState === 'Live'

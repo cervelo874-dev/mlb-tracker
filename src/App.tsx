@@ -20,6 +20,7 @@ import { HighlightHistoryModal } from './components/HighlightHistoryModal';
 import { LiveSimulationBar } from './components/LiveSimulationBar';
 import { DEMO_GAMES } from './constants/demoGames';
 import { getTeamMeta } from './constants/teams';
+import { getJstTodayDateString } from './utils/date';
 import type { Play, Linescore } from './types/mlb';
 import { Sparkles, RefreshCw } from 'lucide-react';
 
@@ -27,9 +28,9 @@ export default function App() {
   // 1. お気に入りチーム管理 (デフォルト: ドジャース 119)
   const { favoriteTeamId, favoriteTeamMeta, setFavoriteTeamId } = useFavoriteTeam();
 
-  // 2. 日付ステート (デフォルト: 今日)
+  // 2. 日付ステート (デフォルト: 日本時間の今日)
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    return new Date().toISOString().split('T')[0];
+    return getJstTodayDateString();
   });
 
   // 3. モーダル開閉ステート
