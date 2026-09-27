@@ -2,7 +2,7 @@ import React from 'react';
 import type { ScheduleGame } from '../types/mlb';
 import { DEMO_GAMES } from '../constants/demoGames';
 import { getTeamMeta } from '../constants/teams';
-import { Calendar, Trophy, X, ChevronRight } from 'lucide-react';
+import { Calendar, Trophy, X, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface GameSelectorModalProps {
   isOpen: boolean;
@@ -23,6 +23,55 @@ export const GameSelectorModal: React.FC<GameSelectorModalProps> = ({
   currentDate,
   onDateChange,
 }) => {
+  // 今日の日付文字列 (YYYY-MM-DD)
+  const todayStr = React.useMemo(() => {
+    return new Date().toISOString().split('T')[0];
+  }, []);
+
+  // 日付の前後シフト処理（タイムゾーンの安全なパース）
+  const shiftDate = (days: number) => {
+    try {
+      const parts = currentDate.split('-').map(Number);
+      const d = new Date(parts[0], parts[1] - 1, parts[2]);
+      d.setDate(d.getDate() + days);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const dt = String(d.getDate()).padStart(2, '0');
+      onDateChange(`${y}-${m}-${dt}`);
+    } catch {
+      // フォールバック
+      const d = new Date();
+      onDateChange(d.toISOString().split('T')[0]);
+    }
+  };
+
+  // 直近の日付ピル生成（今日または選択日を基準にした前後4日間）
+  const quickDates = React.useMemo(() => {
+    const daysJa = ['日', '月', '火', '水', '木', '金', '土'];
+    const result = [];
+    const baseDate = new Date(); // 今日を基準
+
+    for (let offset = -4; offset <= 3; offset++) {
+      const d = new Date(baseDate);
+      d.setDate(baseDate.getDate() + offset);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const dt = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${dt}`;
+      const month = d.getMonth() + 1;
+      const day = d.getDate();
+      const dayOfWeek = daysJa[d.getDay()];
+
+      result.push({
+        dateStr,
+        displayDate: `${month}/${day}`,
+        dayOfWeek,
+        isToday: dateStr === todayStr,
+      });
+    }
+    return result;
+  }, [todayStr]);
+
   if (!isOpen) return null;
 
   return (
@@ -44,24 +93,69 @@ export const GameSelectorModal: React.FC<GameSelectorModalProps> = ({
           </button>
         </div>
 
-        {/* 日付入力 */}
-        <div className="p-3 bg-slate-900/90 border-b border-slate-800 flex items-center gap-2">
-          <label className="text-xs text-slate-400 font-medium">日付選択:</label>
-          <input
-            type="date"
-            value={currentDate}
-            onChange={(e) => onDateChange(e.target.value)}
-            className="flex-1 px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-dodger-light"
-          />
-          <button
-            onClick={() => {
-              const today = new Date().toISOString().split('T')[0];
-              onDateChange(today);
-            }}
-            className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200"
-          >
-            今日
-          </button>
+        {/* 日付クイック切り替えナビゲーションバー */}
+        <div className="p-3 bg-slate-950/90 border-b border-slate-800 space-y-2.5">
+          {/* 上段: ◀ 前日 / カレンダー直接指定 / 翌日 ▶ */}
+          <div className="flex items-center justify-between gap-1.5">
+            <button
+              onClick={() => shiftDate(-1)}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700/60 transition-colors shadow-sm"
+              title="前日へ移動"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>前日</span>
+            </button>
+
+            <div className="flex items-center gap-1.5 flex-1 justify-center max-w-[220px]">
+              <input
+                type="date"
+                value={currentDate}
+                onChange={(e) => onDateChange(e.target.value)}
+                className="w-full px-2.5 py-1 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white text-center font-mono focus:outline-none focus:border-dodger-light shadow-inner"
+              />
+            </div>
+
+            <button
+              onClick={() => shiftDate(1)}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-slate-700/60 transition-colors shadow-sm"
+              title="翌日へ移動"
+            >
+              <span>翌日</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* 下段: 直近の日付ピルバー (横スクロール可能) */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
+            {quickDates.map((item) => {
+              const isSelected = item.dateStr === currentDate;
+              return (
+                <button
+                  key={item.dateStr}
+                  onClick={() => onDateChange(item.dateStr)}
+                  className={`flex-shrink-0 px-2.5 py-1 rounded-xl text-[11px] font-medium transition-all flex items-center gap-1 border ${
+                    isSelected
+                      ? 'bg-dodger-blue text-white border-blue-400 shadow-md font-bold ring-1 ring-blue-400/40'
+                      : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:bg-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  <span className="font-mono">{item.displayDate}</span>
+                  <span className="text-[10px] opacity-75">({item.dayOfWeek})</span>
+                  {item.isToday && (
+                    <span
+                      className={`text-[9px] px-1 py-0.2 rounded font-extrabold ${
+                        isSelected
+                          ? 'bg-white/20 text-white'
+                          : 'bg-blue-950 text-blue-300 border border-blue-800'
+                      }`}
+                    >
+                      今日
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="p-4 overflow-y-auto space-y-5 flex-1">

@@ -50,14 +50,27 @@ export default function App() {
   // 5. 選択中ゲームPk
   const [selectedGamePk, setSelectedGamePk] = useState<number | undefined>(undefined);
 
-  // スケジュールがロードされた時にお気に入りチームの試合または当日第1試合を自動選択
+  // スケジュールがロードされた時、または日付が変更された時に、
+  // 選択中のゲームが現在の日の試合一覧に存在しない場合のみ、お気に入りチームの試合または第1試合を自動選択
   useEffect(() => {
-    if (favoriteGame) {
-      setSelectedGamePk(favoriteGame.gamePk);
-    } else if (games.length > 0 && !selectedGamePk) {
-      setSelectedGamePk(games[0].gamePk);
+    if (games.length === 0) return;
+
+    // デモ試合が選択されている場合は上書きしない
+    const isDemoGame = DEMO_GAMES.some((d) => d.gamePk === selectedGamePk);
+    if (isDemoGame) return;
+
+    // 現在選択されているゲームが、当日のゲーム一覧に含まれているか確認
+    const isCurrentGameInList = games.some((g) => g.gamePk === selectedGamePk);
+
+    // 含まれていない場合（初回ロード時、または日付変更時）のみ、自動選択を行う
+    if (!isCurrentGameInList) {
+      if (favoriteGame) {
+        setSelectedGamePk(favoriteGame.gamePk);
+      } else {
+        setSelectedGamePk(games[0].gamePk);
+      }
     }
-  }, [favoriteGame, games, selectedGamePk]);
+  }, [games, favoriteGame, selectedGamePk]);
 
   // 6. エキサイト演出ステート
   const [homeRunDetails, setHomeRunDetails] = useState<HomeRunDetails | null>(null);
