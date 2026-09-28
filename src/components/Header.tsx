@@ -1,6 +1,6 @@
 import React from 'react';
 import type { MLBTeamMeta } from '../constants/teams';
-import { Heart, Calendar, RefreshCw, Sparkles, Flame, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, Calendar, RefreshCw, Sparkles, Flame, ChevronLeft, ChevronRight, BarChart3 } from 'lucide-react';
 
 interface HeaderProps {
   favoriteTeam: MLBTeamMeta;
@@ -14,6 +14,7 @@ interface HeaderProps {
   onTriggerTestHardHit: () => void;
   homeRunCount?: number;
   hardHitCount?: number;
+  onOpenBoxscore?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -28,6 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
   onTriggerTestHardHit,
   homeRunCount = 0,
   hardHitCount = 0,
+  onOpenBoxscore,
 }) => {
   // 日付の前後移動
   const handlePrevDay = () => {
@@ -155,6 +157,18 @@ export const Header: React.FC<HeaderProps> = ({
               <Flame className="w-3 h-3 text-rose-400 fill-current" />
               <span>100mph{hardHitCount > 0 ? ` (${hardHitCount})` : ''}</span>
             </button>
+
+            {/* 選手データ / ボックススコア切り替えボタン */}
+            {onOpenBoxscore && (
+              <button
+                onClick={onOpenBoxscore}
+                className="px-2.5 py-1 rounded-xl bg-indigo-600/25 hover:bg-indigo-600/40 border border-indigo-400/50 text-[11px] font-bold text-indigo-200 hover:text-white flex items-center gap-1 transition-all shadow-sm active:scale-95"
+                title="選手成績（打撃・投球スタッツ）を表示"
+              >
+                <BarChart3 className="w-3 h-3 text-indigo-300" />
+                <span>選手成績</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

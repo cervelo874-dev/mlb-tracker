@@ -192,13 +192,35 @@ export const PLAYER_NAME_JA: Record<string, string> = {
   'Julio Rodriguez': 'フリオ・ロドリゲス',
   'George Kirby': 'ジョージ・カービー',
   'Logan Gilbert': 'ローガン・ギルバート',
-  'Andrés Muñoz': 'アンドレス・ムニョス',
-  'Andres Munoz': 'アンドレス・ムニョス',
+  // Giants & other players in user screenshots
+  'Jonah Cox': 'ジョナ・コックス',
+  'Victor Bericoto': 'ビクター・ベリコト',
+  'Víctor Bericoto': 'ビクター・ベリコト',
+  'Grant McCray': 'グラント・マクレイ',
+  'Marcelo Mayer': 'マーセロ・マイヤー',
+  'Shay Whitcomb': 'シェイ・ウィットコム',
+  'Turner Hill': 'ターナー・ヒル',
+  'Drew Cavanaugh': 'ドリュー・キャヴァナー',
+  'Scott Bandura': 'スコット・バンデューラ',
+  'Brett Harris': 'ブレット・ハリス',
+  'Christian Koss': 'クリスチャン・コス',
+  'Drew Gilbert': 'ドリュー・ギルバート',
+  'Carson Seymour': 'カーソン・シーモア',
+  'Joel Kuhnel': 'ジョエル・クーネル',
+  'Seth Lonsway': 'セス・ロンズウェイ',
+  'Sam Hentges': 'サム・ヘンゲス',
+  'Braxton Roxby': 'ブラクストン・ロックスビー',
+  'Dylan Smith': 'ディラン・スミス',
+  'Jason Foley': 'ジェイソン・フォーリー',
+  'Trent Harris': 'トレント・ハリス',
+  'Camilo Doval': 'カミロ・ドバル',
+  'Duncan Davitt': 'ダンカン・ダビット',
 };
 
 export function getPlayerDisplayName(fullName: string): string {
   if (!fullName) return '';
-  return fullName.trim();
+  const trimmed = fullName.trim();
+  return PLAYER_NAME_JA[trimmed] || trimmed;
 }
 
 export const PITCH_TYPES_JA: Record<string, string> = {
@@ -707,3 +729,276 @@ export function translatePlay(
     rawDescription: desc,
   };
 }
+
+/**
+ * 守備位置コード・略称を日本の野球表記（一、二、遊、左、指など）に変換
+ */
+export const POSITION_MAP_JA: Record<string, string> = {
+  P: '投',
+  C: '捕',
+  '1B': '一',
+  '2B': '二',
+  '3B': '三',
+  SS: '遊',
+  LF: '左',
+  CF: '中',
+  RF: '右',
+  DH: '指',
+  PH: '打',
+  PR: '走',
+  OF: '外',
+  IF: '内',
+  // 数字ポジションコード
+  '1': '投',
+  '2': '捕',
+  '3': '一',
+  '4': '二',
+  '5': '三',
+  '6': '遊',
+  '7': '左',
+  '8': '中',
+  '9': '右',
+  '10': '指',
+};
+
+export function translatePosition(
+  pos?: string | { abbreviation?: string; name?: string; code?: string }
+): string {
+  if (!pos) return '';
+  if (typeof pos === 'string') {
+    return POSITION_MAP_JA[pos] || pos;
+  }
+  const abbr = pos.abbreviation || pos.code || pos.name || '';
+  return POSITION_MAP_JA[abbr] || abbr;
+}
+
+/**
+ * 選手の全ポジション（allPositions）を「走, 指」「打, 左」のように日本語カンマ区切りで生成
+ */
+export function formatPlayerPositions(
+  allPositions?: Array<{ abbreviation?: string; name?: string; code?: string }>,
+  primaryPosition?: { abbreviation?: string; name?: string; code?: string }
+): string {
+  if (allPositions && allPositions.length > 0) {
+    const list = allPositions
+      .map((p) => translatePosition(p))
+      .filter((s) => s.length > 0);
+    if (list.length > 0) {
+      return list.join(', ');
+    }
+  }
+  if (primaryPosition) {
+    return translatePosition(primaryPosition);
+  }
+  return '';
+}
+
+/**
+ * 試合が動いていない時間（非投球アクション: 投手交代、チャレンジ、マウンド訪問等）の翻訳
+ */
+export interface TranslatedAction {
+  category:
+    | 'pitcher_sub'
+    | 'review'
+    | 'mound_visit'
+    | 'offensive_sub'
+    | 'defensive_sub'
+    | 'delay'
+    | 'violation'
+    | 'other';
+  title: string;
+  description: string;
+  badge: string;
+  badgeColor: string;
+  iconType: 'pitcher' | 'review' | 'mound' | 'batter' | 'defense' | 'delay' | 'clock' | 'alert';
+}
+
+export function translatePlayAction(actionEvent: {
+  details?: {
+    eventType?: string;
+    description?: string;
+    event?: string;
+  };
+  type?: string;
+}): TranslatedAction | null {
+  const desc = actionEvent.details?.description || actionEvent.details?.event || '';
+  const eventType = (actionEvent.details?.eventType || actionEvent.type || '').toLowerCase();
+  const descLower = desc.toLowerCase();
+
+  // 1. 投手交代 (Pitching Substitution)
+  if (eventType.includes('pitching_substitution') || descLower.includes('pitching substitution')) {
+    // 例: "Pitching Substitution: Jason Foley replaces Carson Seymour."
+    const match = desc.match(/Pitching Substitution:\s*([^]+?)\s*replaces\s*([^.]+)/i);
+    let title = '投手交代';
+    let detail = desc;
+    if (match) {
+      const newPitcher = getPlayerDisplayName(match[1].trim());
+      const oldPitcher = getPlayerDisplayName(match[2].trim());
+      title = `投手交代: ${newPitcher} が登板`;
+      detail = `${oldPitcher} → ${newPitcher}`;
+    } else {
+      const simpleMatch = desc.match(/Pitching Substitution:\s*([^.]+)/i);
+      if (simpleMatch) {
+        const newPitcher = getPlayerDisplayName(simpleMatch[1].trim());
+        title = `投手交代: ${newPitcher} が登板`;
+      }
+    }
+    return {
+      category: 'pitcher_sub',
+      title,
+      description: detail,
+      badge: '投手交代',
+      badgeColor: 'bg-emerald-600/90 text-white font-bold',
+      iconType: 'pitcher',
+    };
+  }
+
+  // 2. チャレンジ / 審判団レビュー (Challenge / Umpire Review)
+  if (
+    eventType.includes('challenge') ||
+    eventType.includes('review') ||
+    descLower.includes('challenge') ||
+    descLower.includes('review')
+  ) {
+    let outcome = 'リプレー検証中';
+    if (descLower.includes('overturned')) {
+      outcome = '判定変更（セーフ/アウト等の判定が覆る）';
+    } else if (descLower.includes('confirmed') || descLower.includes('stands')) {
+      outcome = '判定通り（原審支持）';
+    }
+    return {
+      category: 'review',
+      title: '審判団によるリプレー検証（チャレンジ）',
+      description: desc ? `${desc} (${outcome})` : outcome,
+      badge: 'チャレンジ',
+      badgeColor: 'bg-purple-600/90 text-white font-bold',
+      iconType: 'review',
+    };
+  }
+
+  // 3. マウンド訪問 (Mound Visit)
+  if (eventType.includes('mound_visit') || descLower.includes('mound visit')) {
+    return {
+      category: 'mound_visit',
+      title: 'マウンド訪問',
+      description: 'ベンチ首脳陣または捕手・内野陣がマウンドに集まり協議',
+      badge: 'マウンド訪問',
+      badgeColor: 'bg-amber-600/90 text-white font-bold',
+      iconType: 'mound',
+    };
+  }
+
+  // 4. 代打・代走起用 (Offensive Substitution)
+  if (
+    eventType.includes('offensive_substitution') ||
+    descLower.includes('offensive substitution') ||
+    descLower.includes('pinch-hitter') ||
+    descLower.includes('pinch-runner')
+  ) {
+    const isRunner = descLower.includes('pinch-runner');
+    const roleName = isRunner ? '代走' : '代打';
+    const match = desc.match(/(?:Pinch-hitter|Pinch-runner)\s*([^]+?)\s*replaces\s*([^.]+)/i);
+    let title = `${roleName}起用`;
+    let detail = desc;
+    if (match) {
+      const newPlayer = getPlayerDisplayName(match[1].trim());
+      const oldPlayer = getPlayerDisplayName(match[2].trim());
+      title = `${roleName}起用: ${newPlayer}`;
+      detail = `${oldPlayer} に代わり ${newPlayer} が出場`;
+    }
+    return {
+      category: 'offensive_sub',
+      title,
+      description: detail,
+      badge: roleName,
+      badgeColor: 'bg-cyan-600/90 text-white font-bold',
+      iconType: 'batter',
+    };
+  }
+
+  // 5. 守備交代・ポジション変更 (Defensive Sub / Switch)
+  if (
+    eventType.includes('defensive_substitution') ||
+    eventType.includes('defensive_switch') ||
+    descLower.includes('defensive switch') ||
+    descLower.includes('defensive substitution')
+  ) {
+    return {
+      category: 'defensive_sub',
+      title: '守備交代・守備位置変更',
+      description: desc,
+      badge: '守備交代',
+      badgeColor: 'bg-blue-600/90 text-white font-bold',
+      iconType: 'defense',
+    };
+  }
+
+  // 6. 負傷中断・治療 (Injury Delay / Delay)
+  if (
+    eventType.includes('injury') ||
+    eventType.includes('delay') ||
+    descLower.includes('injury') ||
+    descLower.includes('delay')
+  ) {
+    const isInjury = descLower.includes('injury');
+    return {
+      category: 'delay',
+      title: isInjury ? '選手負傷による治療・試合中断' : '試合中断・一時停止',
+      description: desc || (isInjury ? 'メディカルスタッフが対応中' : '試合進行が一時中断しています'),
+      badge: isInjury ? '負傷治療' : '試合中断',
+      badgeColor: 'bg-rose-600/90 text-white font-bold animate-pulse',
+      iconType: 'delay',
+    };
+  }
+
+  // 7. ピッチクロック違反 (Pitch Timer Violation)
+  if (descLower.includes('pitch timer') || descLower.includes('timer violation') || descLower.includes('pitch clock')) {
+    return {
+      category: 'violation',
+      title: 'ピッチクロック違反',
+      description: desc,
+      badge: '時計違反',
+      badgeColor: 'bg-amber-500 text-black font-bold',
+      iconType: 'clock',
+    };
+  }
+
+  // 8. ボーク (Balk)
+  if (eventType.includes('balk') || descLower.includes('balk')) {
+    return {
+      category: 'other',
+      title: 'ボーク判定',
+      description: desc,
+      badge: 'ボーク',
+      badgeColor: 'bg-yellow-500 text-black font-bold',
+      iconType: 'alert',
+    };
+  }
+
+  // 9. 退場処分 (Ejection)
+  if (eventType.includes('ejection') || descLower.includes('ejected')) {
+    return {
+      category: 'other',
+      title: '退場処分',
+      description: desc,
+      badge: '退場',
+      badgeColor: 'bg-red-700 text-white font-extrabold',
+      iconType: 'alert',
+    };
+  }
+
+  // その他有意義なアクション説明文がある場合
+  if (desc && desc.length > 3 && !descLower.startsWith('status change')) {
+    return {
+      category: 'other',
+      title: 'フィールドアクション',
+      description: desc,
+      badge: 'イベント',
+      badgeColor: 'bg-slate-700 text-slate-200',
+      iconType: 'alert',
+    };
+  }
+
+  return null;
+}
+

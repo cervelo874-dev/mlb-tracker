@@ -10,6 +10,7 @@ import { MatchupCard } from './components/MatchupCard';
 import { PitchSequencePills } from './components/PitchSequencePills';
 import { StrikeZone } from './components/StrikeZone';
 import { PlayFeed } from './components/PlayFeed';
+import { BoxscoreView } from './components/BoxscoreView';
 import { HomeRunCelebration } from './components/HomeRunCelebration';
 import type { HomeRunDetails } from './components/HomeRunCelebration';
 import { HardHitAlert } from './components/HardHitAlert';
@@ -22,7 +23,7 @@ import { DEMO_GAMES } from './constants/demoGames';
 import { getTeamMeta } from './constants/teams';
 import { getJstTodayDateString } from './utils/date';
 import type { Play, Linescore } from './types/mlb';
-import { Sparkles, RefreshCw } from 'lucide-react';
+import { Sparkles, RefreshCw, Activity, BarChart3 } from 'lucide-react';
 
 export default function App() {
   // 1. お気に入りチーム管理 (デフォルト: ドジャース 119)
@@ -104,6 +105,16 @@ export default function App() {
 
   const handleCloseHardHit = useCallback(() => {
     setHardHitData(null);
+  }, []);
+
+  // 下部セクション表示タブ（実況タイムライン or 選手成績ボックススコア）
+  const [activeBottomTab, setActiveBottomTab] = useState<'feed' | 'boxscore'>('feed');
+
+  const handleOpenBoxscore = useCallback(() => {
+    setActiveBottomTab('boxscore');
+    setTimeout(() => {
+      document.getElementById('bottom-content-area')?.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
   }, []);
 
   // 7. ライブフィード取得 (進行中なら5秒ポーリング)
@@ -315,6 +326,7 @@ export default function App() {
         }}
         homeRunCount={currentHomeRunPlays.length}
         hardHitCount={currentHardHitPlays.length}
+        onOpenBoxscore={handleOpenBoxscore}
       />
 
       {/* 2. メインコンテンツ（画面横幅をフル活用・max-w-5xlでヘッダーと完全一致） */}
@@ -408,8 +420,50 @@ export default function App() {
               teamColor={battingTeamMeta?.primaryColor}
             />
 
-            {/* ④ 日本語実況フィード & Statcast詳細 */}
-            <PlayFeed plays={activePlays} />
+            {/* ⑤ 下部エリア: 実況タイムライン / 選手成績（ボックススコア）タブ切り替え */}
+            <div id="bottom-content-area" className="w-full space-y-2.5">
+              {/* タブ切り替えバー */}
+              <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md">
+                <button
+                  onClick={() => setActiveBottomTab('feed')}
+                  className={`flex-1 py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold transition-all ${
+                    activeBottomTab === 'feed'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                  }`}
+                >
+                  <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-dodger-light" />
+                  <span>実況タイムライン</span>
+                  {activePlays.length > 0 && (
+                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-950/60 text-slate-300 font-mono">
+                      {activePlays.length}
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => setActiveBottomTab('boxscore')}
+                  className={`flex-1 py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold transition-all ${
+                    activeBottomTab === 'boxscore'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                  }`}
+                >
+                  <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-300" />
+                  <span>選手成績（ボックススコア）</span>
+                </button>
+              </div>
+
+              {/* タブコンテンツ */}
+              {activeBottomTab === 'feed' ? (
+                <PlayFeed plays={activePlays} currentPlay={activeCurrentPlay} />
+              ) : (
+                <BoxscoreView
+                  boxscore={feed?.liveData?.boxscore}
+                  gameData={feed?.gameData}
+                />
+              )}
+            </div>
           </>
         )}
 
