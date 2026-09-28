@@ -426,16 +426,16 @@ export default function App() {
               <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md">
                 <button
                   onClick={() => setActiveBottomTab('feed')}
-                  className={`flex-1 py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold transition-all ${
+                  className={`flex-1 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-sm sm:text-base font-black transition-all ${
                     activeBottomTab === 'feed'
                       ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                   }`}
                 >
-                  <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-dodger-light" />
+                  <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-dodger-light" />
                   <span>実況タイムライン</span>
                   {activePlays.length > 0 && (
-                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-950/60 text-slate-300 font-mono">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-slate-950/60 text-slate-200 font-mono font-bold">
                       {activePlays.length}
                     </span>
                   )}
@@ -443,13 +443,13 @@ export default function App() {
 
                 <button
                   onClick={() => setActiveBottomTab('boxscore')}
-                  className={`flex-1 py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold transition-all ${
+                  className={`flex-1 py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 text-sm sm:text-base font-black transition-all ${
                     activeBottomTab === 'boxscore'
                       ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
                   }`}
                 >
-                  <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-300" />
+                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-300" />
                   <span>選手成績（ボックススコア）</span>
                 </button>
               </div>

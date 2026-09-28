@@ -115,7 +115,7 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
       <div className="flex border-b border-slate-800 bg-slate-950/70">
         <button
           onClick={() => setSelectedSide('away')}
-          className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 text-sm sm:text-base font-bold transition-all border-b-2 ${
+          className={`flex-1 py-3.5 px-4 flex items-center justify-center gap-2 text-base sm:text-lg font-black transition-all border-b-2 ${
             selectedSide === 'away'
               ? 'border-dodger-light text-white bg-slate-800/60'
               : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
@@ -125,7 +125,7 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
             <img
               src={awayMeta.logo}
               alt={awayTeamName}
-              className="w-5 h-5 object-contain drop-shadow"
+              className="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow"
             />
           )}
           <span>{awayTeamName}</span>
@@ -133,7 +133,7 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
 
         <button
           onClick={() => setSelectedSide('home')}
-          className={`flex-1 py-3 px-4 flex items-center justify-center gap-2 text-sm sm:text-base font-bold transition-all border-b-2 ${
+          className={`flex-1 py-3.5 px-4 flex items-center justify-center gap-2 text-base sm:text-lg font-black transition-all border-b-2 ${
             selectedSide === 'home'
               ? 'border-dodger-light text-white bg-slate-800/60'
               : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
@@ -143,7 +143,7 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
             <img
               src={homeMeta.logo}
               alt={homeTeamName}
-              className="w-5 h-5 object-contain drop-shadow"
+              className="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow"
             />
           )}
           <span>{homeTeamName}</span>
@@ -155,14 +155,14 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
         <div>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-dodger-light" />
-              <h3 className="text-sm sm:text-base font-bold text-slate-100 tracking-wide">
+              <Users className="w-5 h-5 text-dodger-light" />
+              <h3 className="text-base sm:text-lg font-black text-slate-100 tracking-wide">
                 打者
               </h3>
             </div>
             {currentTeamMeta && (
               <span
-                className="text-[11px] font-bold px-2 py-0.5 rounded-full border border-slate-700 text-slate-300 bg-slate-900"
+                className="text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-full border border-slate-700 text-slate-200 bg-slate-900 font-sans"
               >
                 {selectedSide === 'away' ? awayTeamName : homeTeamName}
               </span>
@@ -171,21 +171,21 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
 
           <div className="overflow-x-auto rounded-xl border border-slate-800/90 bg-slate-950/40">
             <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="text-[11px] sm:text-xs text-slate-400 border-b border-slate-800 bg-slate-900/80">
+              <thead className="text-xs sm:text-sm text-slate-300 border-b border-slate-800 bg-slate-900/80">
                 <tr>
-                  <th className="py-2.5 px-3 sm:px-4 font-semibold text-slate-300">選手</th>
-                  <th className="py-2.5 px-2 text-center font-semibold w-9 sm:w-11">打</th>
-                  <th className="py-2.5 px-2 text-center font-semibold w-9 sm:w-11">得</th>
-                  <th className="py-2.5 px-2 text-center font-semibold w-9 sm:w-11">安</th>
-                  <th className="py-2.5 px-2 text-center font-semibold w-9 sm:w-11">四</th>
-                  <th className="py-2.5 px-2 text-center font-semibold w-9 sm:w-11">点</th>
-                  <th className="py-2.5 px-3 text-center font-semibold w-10 sm:w-12">HR</th>
+                  <th className="py-2.5 px-3 sm:px-4 font-bold text-slate-200">選手</th>
+                  <th className="py-2.5 px-2 text-center font-bold w-10 sm:w-12">打</th>
+                  <th className="py-2.5 px-2 text-center font-bold w-10 sm:w-12">得</th>
+                  <th className="py-2.5 px-2 text-center font-bold w-10 sm:w-12">安</th>
+                  <th className="py-2.5 px-2 text-center font-bold w-10 sm:w-12">四</th>
+                  <th className="py-2.5 px-2 text-center font-bold w-10 sm:w-12">点</th>
+                  <th className="py-2.5 px-3 text-center font-black w-11 sm:w-14">HR</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-sans">
                 {batters.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-6 text-center text-slate-500 text-xs">
+                    <td colSpan={7} className="py-6 text-center text-slate-500 text-xs sm:text-sm">
                       打者データがありません
                     </td>
                   </tr>
@@ -213,46 +213,46 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
                         <td className="py-2.5 px-3 sm:px-4">
                           <div className="flex items-baseline gap-1.5 flex-wrap">
                             {jerseyNumber && (
-                              <span className="text-slate-400 font-mono text-[11px] sm:text-xs w-5 sm:w-6 flex-shrink-0">
+                              <span className="text-slate-400 font-mono text-xs sm:text-sm font-bold w-5 sm:w-6 flex-shrink-0">
                                 {jerseyNumber}
                               </span>
                             )}
-                            <span className="font-semibold text-slate-100 hover:text-dodger-light transition-colors">
+                            <span className="font-bold text-sm sm:text-base text-slate-100 hover:text-dodger-light transition-colors">
                               {displayName}
                             </span>
                             {posText && (
-                              <span className="text-slate-400 text-[11px] sm:text-xs">
+                              <span className="text-slate-300 text-xs sm:text-sm font-medium">
                                 · {posText}
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="py-2.5 px-2 text-center font-mono text-slate-200">
+                        <td className="py-2.5 px-2 text-center font-mono font-medium text-xs sm:text-sm text-slate-200">
                           {atBats}
                         </td>
-                        <td className="py-2.5 px-2 text-center font-mono text-slate-200">
+                        <td className="py-2.5 px-2 text-center font-mono font-medium text-xs sm:text-sm text-slate-200">
                           {runs}
                         </td>
                         <td
-                          className={`py-2.5 px-2 text-center font-mono font-bold ${
+                          className={`py-2.5 px-2 text-center font-mono font-black text-xs sm:text-sm ${
                             hits > 0 ? 'text-emerald-400' : 'text-slate-200'
                           }`}
                         >
                           {hits}
                         </td>
-                        <td className="py-2.5 px-2 text-center font-mono text-slate-200">
+                        <td className="py-2.5 px-2 text-center font-mono font-medium text-xs sm:text-sm text-slate-200">
                           {bb}
                         </td>
                         <td
-                          className={`py-2.5 px-2 text-center font-mono font-bold ${
+                          className={`py-2.5 px-2 text-center font-mono font-black text-xs sm:text-sm ${
                             rbi > 0 ? 'text-amber-400' : 'text-slate-200'
                           }`}
                         >
                           {rbi}
                         </td>
                         <td
-                          className={`py-2.5 px-3 text-center font-mono font-extrabold ${
-                            hr > 0 ? 'text-orange-400' : 'text-slate-200'
+                          className={`py-2.5 px-3 text-center font-mono font-black text-xs sm:text-sm ${
+                            hr > 0 ? 'text-orange-400 text-sm sm:text-base' : 'text-slate-200'
                           }`}
                         >
                           {hr}
@@ -265,32 +265,31 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
             </table>
           </div>
         </div>
-
         {/* ② 投手セクション */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <Shield className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-sm sm:text-base font-bold text-slate-100 tracking-wide">
+            <Shield className="w-5 h-5 text-emerald-400" />
+            <h3 className="text-base sm:text-lg font-black text-slate-100 tracking-wide">
               投手
             </h3>
           </div>
 
           <div className="overflow-x-auto rounded-xl border border-slate-800/90 bg-slate-950/40">
             <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="text-[11px] sm:text-xs text-slate-400 border-b border-slate-800 bg-slate-900/80">
+              <thead className="text-xs sm:text-sm text-slate-300 border-b border-slate-800 bg-slate-900/80">
                 <tr>
-                  <th className="py-2.5 px-3 sm:px-4 font-semibold text-slate-300">選手</th>
-                  <th className="py-2.5 px-2 text-center font-semibold w-12 sm:w-14">回</th>
-                  <th className="py-2.5 px-2 text-center font-semibold w-9 sm:w-11">安</th>
-                  <th className="py-2.5 px-2 text-center font-semibold w-10 sm:w-12">自責</th>
-                  <th className="py-2.5 px-2 text-center font-semibold w-9 sm:w-11">四</th>
-                  <th className="py-2.5 px-3 text-center font-semibold w-9 sm:w-11">三</th>
+                  <th className="py-2.5 px-3 sm:px-4 font-bold text-slate-200">選手</th>
+                  <th className="py-2.5 px-2 text-center font-bold w-12 sm:w-16">回</th>
+                  <th className="py-2.5 px-2 text-center font-bold w-10 sm:w-12">安</th>
+                  <th className="py-2.5 px-2 text-center font-bold w-11 sm:w-14">自責</th>
+                  <th className="py-2.5 px-2 text-center font-bold w-10 sm:w-12">四</th>
+                  <th className="py-2.5 px-3 text-center font-black w-10 sm:w-12">三</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-sans">
                 {pitchers.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-6 text-center text-slate-500 text-xs">
+                    <td colSpan={6} className="py-6 text-center text-slate-500 text-xs sm:text-sm">
                       投手データがありません
                     </td>
                   </tr>
@@ -316,33 +315,33 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
                         <td className="py-2.5 px-3 sm:px-4">
                           <div className="flex items-baseline gap-1.5">
                             {jerseyNumber && (
-                              <span className="text-slate-400 font-mono text-[11px] sm:text-xs w-5 sm:w-6 flex-shrink-0">
+                              <span className="text-slate-400 font-mono text-xs sm:text-sm font-bold w-5 sm:w-6 flex-shrink-0">
                                 {jerseyNumber}
                               </span>
                             )}
-                            <span className="font-semibold text-slate-100 hover:text-emerald-400 transition-colors">
+                            <span className="font-bold text-sm sm:text-base text-slate-100 hover:text-emerald-400 transition-colors">
                               {displayName}
                             </span>
                           </div>
                         </td>
-                        <td className="py-2.5 px-2 text-center font-mono font-medium text-slate-200">
+                        <td className="py-2.5 px-2 text-center font-mono font-medium text-xs sm:text-sm text-slate-200">
                           {ip}
                         </td>
-                        <td className="py-2.5 px-2 text-center font-mono text-slate-200">
+                        <td className="py-2.5 px-2 text-center font-mono font-medium text-xs sm:text-sm text-slate-200">
                           {hits}
                         </td>
                         <td
-                          className={`py-2.5 px-2 text-center font-mono font-bold ${
+                          className={`py-2.5 px-2 text-center font-mono font-black text-xs sm:text-sm ${
                             er > 0 ? 'text-rose-400' : 'text-slate-200'
                           }`}
                         >
                           {er}
                         </td>
-                        <td className="py-2.5 px-2 text-center font-mono text-slate-200">
+                        <td className="py-2.5 px-2 text-center font-mono font-medium text-xs sm:text-sm text-slate-200">
                           {bb}
                         </td>
                         <td
-                          className={`py-2.5 px-3 text-center font-mono font-bold ${
+                          className={`py-2.5 px-3 text-center font-mono font-black text-xs sm:text-sm ${
                             so > 0 ? 'text-cyan-400' : 'text-slate-200'
                           }`}
                         >

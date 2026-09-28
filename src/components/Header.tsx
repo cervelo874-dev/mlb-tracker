@@ -114,15 +114,15 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={onOpenGameModal}
-              className="px-2 py-0.5 text-xs font-mono font-bold text-amber-300 flex items-center gap-1 hover:text-amber-200"
+              className="px-2.5 py-1 text-xs sm:text-sm font-mono font-bold text-amber-300 flex items-center gap-1.5 hover:text-amber-200"
             >
-              <Calendar className="w-3.5 h-3.5 text-amber-400" />
+              <Calendar className="w-4 h-4 text-amber-400" />
               <span>{currentDate}</span>
             </button>
 
             <button
               onClick={handleNextDay}
-              className="p-1 text-slate-400 hover:text-white transition-colors"
+              className="p-1.5 text-slate-400 hover:text-white transition-colors"
               title="翌日"
             >
               <ChevronRight className="w-4 h-4" />
@@ -130,10 +130,10 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* 試合選択 & テスト演出ツールバー */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <button
               onClick={onOpenGameModal}
-              className="px-2.5 py-1 rounded-xl bg-blue-800/60 hover:bg-blue-800 border border-blue-400/40 text-[11px] font-bold text-white flex items-center gap-1 transition-all"
+              className="px-3 py-1.5 rounded-xl bg-blue-800/70 hover:bg-blue-800 border border-blue-400/50 text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
             >
               <span>試合切替 / 名勝負</span>
             </button>
@@ -141,20 +141,20 @@ export const Header: React.FC<HeaderProps> = ({
             {/* HR履歴 & 演出ボタン */}
             <button
               onClick={onTriggerTestHomeRun}
-              className="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/60 text-[11px] font-extrabold text-amber-300 flex items-center gap-1 transition-all shadow-sm active:scale-95"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/60 text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1 transition-all shadow-sm active:scale-95"
               title="この試合の本塁打履歴 & 演出再生"
             >
-              <Sparkles className="w-3 h-3 text-amber-400 fill-current" />
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-current" />
               <span>HR{homeRunCount > 0 ? ` (${homeRunCount})` : ''}</span>
             </button>
 
             {/* 100mph ハードヒット履歴 & 演出ボタン */}
             <button
               onClick={onTriggerTestHardHit}
-              className="px-2.5 py-1 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/60 text-[11px] font-extrabold text-rose-300 flex items-center gap-1 transition-all shadow-sm active:scale-95"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/60 text-xs sm:text-sm font-black text-rose-300 flex items-center gap-1 transition-all shadow-sm active:scale-95"
               title="この試合の100mph超ハードヒット履歴 & 演出再生"
             >
-              <Flame className="w-3 h-3 text-rose-400 fill-current" />
+              <Flame className="w-3.5 h-3.5 text-rose-400 fill-current" />
               <span>100mph{hardHitCount > 0 ? ` (${hardHitCount})` : ''}</span>
             </button>
 
@@ -162,10 +162,10 @@ export const Header: React.FC<HeaderProps> = ({
             {onOpenBoxscore && (
               <button
                 onClick={onOpenBoxscore}
-                className="px-2.5 py-1 rounded-xl bg-indigo-600/25 hover:bg-indigo-600/40 border border-indigo-400/50 text-[11px] font-bold text-indigo-200 hover:text-white flex items-center gap-1 transition-all shadow-sm active:scale-95"
+                className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/40 border border-indigo-400/60 text-xs sm:text-sm font-bold text-indigo-200 hover:text-white flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
                 title="選手成績（打撃・投球スタッツ）を表示"
               >
-                <BarChart3 className="w-3 h-3 text-indigo-300" />
+                <BarChart3 className="w-3.5 h-3.5 text-indigo-300" />
                 <span>選手成績</span>
               </button>
             )}

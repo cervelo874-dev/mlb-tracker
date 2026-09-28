@@ -88,31 +88,31 @@ export const PitchSequencePills: React.FC<PitchSequencePillsProps> = ({
   return (
     <div className={`w-full glass-panel rounded-2xl p-2.5 sm:p-3.5 border border-slate-700/60 shadow-lg ${className}`}>
       {/* ヘッダー & アコーディオン切り替えボタン */}
-      <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-800/80 text-xs">
+      <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-800/80 text-xs sm:text-sm">
         <div className="flex items-center gap-2 text-slate-300">
           <Activity className="w-4 h-4 text-dodger-light animate-pulse" />
-          <span className="font-bold tracking-wide text-slate-100">
+          <span className="font-bold tracking-wide text-slate-100 text-sm sm:text-base">
             配球シーケンス
           </span>
-          <span className="text-[11px] text-slate-400 font-mono bg-slate-800/80 px-2 py-0.5 rounded-full">
-            この打席: <strong className="text-amber-400">{totalPitches}</strong> 球
+          <span className="text-xs sm:text-sm text-slate-300 font-mono bg-slate-800/90 px-2.5 py-0.5 rounded-full border border-slate-700">
+            この打席: <strong className="text-amber-400 font-black">{totalPitches}</strong> 球
           </span>
         </div>
 
         {totalPitches > 4 && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-medium text-xs transition-colors border border-slate-700"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs sm:text-sm transition-colors border border-slate-700"
           >
             {isExpanded ? (
               <>
                 <span>最新4球のみ表示</span>
-                <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
+                <ChevronUp className="w-4 h-4 text-slate-400" />
               </>
             ) : (
               <>
                 <span>全{totalPitches}球を表示</span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                <ChevronDown className="w-4 h-4 text-slate-400" />
               </>
             )}
           </button>
@@ -145,48 +145,48 @@ export const PitchSequencePills: React.FC<PitchSequencePillsProps> = ({
           return (
             <div
               key={`pill-${pitchNumber}`}
-              className={`p-2 sm:p-2.5 rounded-xl border flex flex-col justify-between gap-1.5 sm:gap-2 text-xs transition-all shadow-sm ${styles.container}`}
+              className={`p-2.5 sm:p-3 rounded-xl border flex flex-col justify-between gap-2 text-xs sm:text-sm transition-all shadow-sm ${styles.container}`}
             >
               {/* 【上段】: 球番・球種 & 球速 (km/h) */}
               <div className="flex items-center justify-between gap-2">
                 {/* 球番 + 球種 */}
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${styles.dot} ${isLatest ? 'animate-pulse' : ''}`} />
-                  <span className="font-mono font-black text-slate-200 text-xs flex-shrink-0 whitespace-nowrap">
+                  <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${styles.dot} ${isLatest ? 'animate-pulse' : ''}`} />
+                  <span className="font-mono font-black text-slate-200 text-xs sm:text-sm flex-shrink-0 whitespace-nowrap">
                     第{pitchNumber}球:
                   </span>
-                  <span className="font-bold text-slate-100 truncate text-xs">
+                  <span className="font-bold text-slate-100 truncate text-xs sm:text-sm">
                     {pitchTypeJa}
                   </span>
                 </div>
 
                 {/* 球速 km/h */}
                 {speedKmh ? (
-                  <div className="flex-shrink-0 font-mono font-extrabold text-amber-300 text-xs whitespace-nowrap">
-                    {speedKmh} <span className="text-[10px] font-sans font-normal text-slate-300">km/h</span>
+                  <div className="flex-shrink-0 font-mono font-black text-amber-300 text-xs sm:text-sm whitespace-nowrap">
+                    {speedKmh} <span className="text-[11px] font-sans font-medium text-slate-300">km/h</span>
                   </div>
                 ) : (
-                  <span className="text-[10px] text-slate-500">-</span>
+                  <span className="text-xs text-slate-500">-</span>
                 )}
               </div>
 
               {/* 【下段】: 判定結果タグ & mph & 最新バッジ */}
-              <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
+              <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-slate-800/80">
                 {/* 判定ラベル */}
-                <span className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${styles.badge} truncate max-w-[170px]`}>
+                <span className={`px-2.5 py-0.5 rounded-md text-xs sm:text-sm font-bold border ${styles.badge} truncate max-w-[180px]`}>
                   {callInfo.label}
                 </span>
 
                 {/* mph & 最新タグ */}
                 <div className="flex items-center gap-1.5 flex-shrink-0 text-right font-mono">
                   {speedMph && (
-                    <span className="text-[10px] text-slate-400">
+                    <span className="text-[11px] sm:text-xs text-slate-400 font-medium">
                       ({speedMph}mph)
                     </span>
                   )}
 
                   {isLatest && (
-                    <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-400/40 text-[9px] font-bold font-sans animate-pulse whitespace-nowrap">
+                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-400/50 text-[10px] sm:text-[11px] font-black font-sans animate-pulse whitespace-nowrap">
                       最新
                     </span>
                   )}

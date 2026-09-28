@@ -62,29 +62,29 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
   return (
     <div className="w-full rounded-2xl glass-panel-glow overflow-hidden shadow-2xl border border-slate-700/80">
       {/* 上部ヘッダーバー: 試合ステータスとイニング */}
-      <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-slate-900/95 via-slate-800/95 to-slate-900/95 border-b border-slate-700/60 flex items-center justify-between">
+      <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-slate-900/95 via-slate-800/95 to-slate-900/95 border-b border-slate-700/60 flex items-center justify-between">
         <div className="flex items-center gap-2">
           {state === 'Live' ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-600/20 text-rose-400 border border-rose-500/30 animate-pulse">
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-black bg-rose-600/20 text-rose-400 border border-rose-500/40 animate-pulse">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
               LIVE
             </span>
           ) : state === 'Final' ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-700/60 text-slate-300 border border-slate-600/40">
-              <Trophy className="w-3 h-3 text-amber-400" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-slate-700/60 text-slate-200 border border-slate-600/50">
+              <Trophy className="w-4 h-4 text-amber-400" />
               試合終了 ({detailedState || 'Final'})
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-900/40 text-sky-300 border border-sky-600/30">
-              <Clock className="w-3 h-3" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-sky-900/50 text-sky-200 border border-sky-600/40">
+              <Clock className="w-4 h-4 text-sky-300" />
               試合前 ({detailedState || '予定'})
             </span>
           )}
 
           {/* 試合日時の簡易表示 */}
           {formattedGameTime && state === 'Preview' && (
-            <span className="text-xs text-slate-400 flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
+            <span className="text-xs sm:text-sm text-slate-300 font-medium flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5 text-slate-400" />
               {formattedGameTime} 開始予定
             </span>
           )}
@@ -92,7 +92,7 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
 
         {/* イニング表示 */}
         {state === 'Live' && (
-          <div className="flex items-center gap-1 text-sm font-bold text-amber-400 bg-amber-950/40 px-3 py-0.5 rounded-full border border-amber-500/30">
+          <div className="flex items-center gap-1.5 text-sm sm:text-base font-black text-amber-400 bg-amber-950/50 px-3.5 py-1 rounded-full border border-amber-500/40 shadow-sm">
             <span>{isTopInning ? '▲' : '▼'}</span>
             <span>
               {currentInning}回 {inningHalfJa}
@@ -102,10 +102,10 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
       </div>
 
       {/* メインスコアエリア */}
-      <div className="p-2.5 sm:p-4 grid grid-cols-7 items-center gap-1.5 sm:gap-2">
+      <div className="p-3 sm:p-5 grid grid-cols-7 items-center gap-2">
         {/* ビジターチーム */}
         <div className="col-span-3 flex flex-col items-center text-center">
-          <div className="relative w-12 h-12 sm:w-16 sm:h-16 mb-1.5 sm:mb-2 p-1 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shadow-lg group hover:scale-105 transition-transform">
+          <div className="relative w-14 h-14 sm:w-18 sm:h-18 mb-1.5 sm:mb-2 p-1.5 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shadow-lg group hover:scale-105 transition-transform">
             {awayMeta?.logo ? (
               <img
                 src={awayMeta.logo}
@@ -114,32 +114,32 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
                 loading="eager"
               />
             ) : (
-              <div className="text-sm font-bold">{awayTeam?.name.substring(0, 3)}</div>
+              <div className="text-base font-bold">{awayTeam?.name.substring(0, 3)}</div>
             )}
           </div>
-          <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">VISITOR</span>
-          <span className="text-base sm:text-lg font-black text-slate-100 tracking-tight leading-tight">
+          <span className="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">VISITOR</span>
+          <span className="text-lg sm:text-xl font-black text-slate-100 tracking-tight leading-tight mt-0.5">
             {awayMeta?.jpName || awayTeam?.name}
           </span>
-          <span className="text-[11px] text-slate-400 font-mono">
+          <span className="text-xs text-slate-400 font-mono font-bold mt-0.5">
             {awayMeta?.abbreviation}
           </span>
         </div>
 
         {/* スコア数字表示 */}
         <div className="col-span-1 flex flex-col items-center justify-center">
-          <div className="flex items-center justify-center gap-2 text-3xl sm:text-4xl font-black font-mono tracking-tighter">
+          <div className="flex items-center justify-center gap-2 text-4xl sm:text-5xl font-black font-mono tracking-tighter">
             <span
               className={`transition-all ${
-                awayScore > homeScore ? 'text-amber-400 font-extrabold scale-105' : 'text-slate-100'
+                awayScore > homeScore ? 'text-amber-400 font-black scale-105' : 'text-slate-100'
               }`}
             >
               {state === 'Preview' ? '-' : awayScore}
             </span>
-            <span className="text-slate-600 text-2xl font-light">-</span>
+            <span className="text-slate-600 text-3xl font-light">-</span>
             <span
               className={`transition-all ${
-                homeScore > awayScore ? 'text-amber-400 font-extrabold scale-105' : 'text-slate-100'
+                homeScore > awayScore ? 'text-amber-400 font-black scale-105' : 'text-slate-100'
               }`}
             >
               {state === 'Preview' ? '-' : homeScore}
@@ -148,7 +148,7 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
 
           {/* ヒット・エラーまとめ */}
           {state !== 'Preview' && (
-            <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-400 font-mono">
+            <div className="flex items-center gap-2 mt-1.5 text-xs text-slate-300 font-mono font-medium">
               <span>H: {awayHits}-{homeHits}</span>
               <span>•</span>
               <span>E: {awayErrors}-{homeErrors}</span>
@@ -158,7 +158,7 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
 
         {/* ホームチーム */}
         <div className="col-span-3 flex flex-col items-center text-center">
-          <div className="relative w-12 h-12 sm:w-16 sm:h-16 mb-1.5 sm:mb-2 p-1 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shadow-lg group hover:scale-105 transition-transform">
+          <div className="relative w-14 h-14 sm:w-18 sm:h-18 mb-1.5 sm:mb-2 p-1.5 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shadow-lg group hover:scale-105 transition-transform">
             {homeMeta?.logo ? (
               <img
                 src={homeMeta.logo}
@@ -167,14 +167,14 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
                 loading="eager"
               />
             ) : (
-              <div className="text-sm font-bold">{homeTeam?.name.substring(0, 3)}</div>
+              <div className="text-base font-bold">{homeTeam?.name.substring(0, 3)}</div>
             )}
           </div>
-          <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">HOME</span>
-          <span className="text-base sm:text-lg font-black text-slate-100 tracking-tight leading-tight">
+          <span className="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">HOME</span>
+          <span className="text-lg sm:text-xl font-black text-slate-100 tracking-tight leading-tight mt-0.5">
             {homeMeta?.jpName || homeTeam?.name}
           </span>
-          <span className="text-[11px] text-slate-400 font-mono">
+          <span className="text-xs text-slate-400 font-mono font-bold mt-0.5">
             {homeMeta?.abbreviation}
           </span>
         </div>
@@ -182,19 +182,19 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
 
       {/* 予告先発投手（試合前 Preview 時） */}
       {state === 'Preview' && probablePitchers && (
-        <div className="px-4 py-3 bg-slate-900/80 border-t border-slate-800 flex items-center justify-around text-xs">
+        <div className="px-4 py-3 bg-slate-900/80 border-t border-slate-800 flex items-center justify-around text-sm">
           <div className="text-center">
-            <span className="text-[10px] text-slate-400 block mb-0.5">先発予定</span>
-            <span className="text-slate-200 font-semibold">
+            <span className="text-xs text-slate-400 block mb-0.5">先発予定</span>
+            <span className="text-slate-100 font-bold text-sm">
               {probablePitchers.away?.fullName
                 ? getPlayerDisplayName(probablePitchers.away.fullName)
                 : '未定'}
             </span>
           </div>
-          <div className="text-slate-600 font-bold">VS</div>
+          <div className="text-slate-500 font-extrabold text-sm">VS</div>
           <div className="text-center">
-            <span className="text-[10px] text-slate-400 block mb-0.5">先発予定</span>
-            <span className="text-slate-200 font-semibold">
+            <span className="text-xs text-slate-400 block mb-0.5">先発予定</span>
+            <span className="text-slate-100 font-bold text-sm">
               {probablePitchers.home?.fullName
                 ? getPlayerDisplayName(probablePitchers.home.fullName)
                 : '未定'}
@@ -205,33 +205,33 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
 
       {/* 勝敗/セーブ投手（試合終了 Final 時） */}
       {state === 'Final' && decisions && (
-        <div className="px-4 py-2.5 bg-slate-900/90 border-t border-slate-800 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs">
+        <div className="px-4 py-3 bg-slate-900/90 border-t border-slate-800 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-sm">
           {decisions.winner && (
             <div className="flex items-center gap-1.5">
-              <span className="px-1.5 py-0.5 rounded bg-emerald-900/60 text-emerald-300 font-bold text-[10px]">
+              <span className="px-2 py-0.5 rounded bg-emerald-900/60 text-emerald-300 font-black text-xs">
                 勝
               </span>
-              <span className="text-slate-200">
+              <span className="text-slate-100 font-medium">
                 {getPlayerDisplayName(decisions.winner.fullName)}
               </span>
             </div>
           )}
           {decisions.loser && (
             <div className="flex items-center gap-1.5">
-              <span className="px-1.5 py-0.5 rounded bg-rose-900/60 text-rose-300 font-bold text-[10px]">
+              <span className="px-2 py-0.5 rounded bg-rose-900/60 text-rose-300 font-black text-xs">
                 負
               </span>
-              <span className="text-slate-200">
+              <span className="text-slate-100 font-medium">
                 {getPlayerDisplayName(decisions.loser.fullName)}
               </span>
             </div>
           )}
           {decisions.save && (
             <div className="flex items-center gap-1.5">
-              <span className="px-1.5 py-0.5 rounded bg-amber-900/60 text-amber-300 font-bold text-[10px]">
+              <span className="px-2 py-0.5 rounded bg-amber-900/60 text-amber-300 font-black text-xs">
                 S
               </span>
-              <span className="text-slate-200">
+              <span className="text-slate-100 font-medium">
                 {getPlayerDisplayName(decisions.save.fullName)}
               </span>
             </div>
@@ -241,49 +241,49 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
 
       {/* イニング別スコアテーブル（ラインスコア） */}
       {linescore?.innings && linescore.innings.length > 0 && (
-        <div className="border-t border-slate-800/80 bg-slate-950/60 px-3 py-2 overflow-x-auto">
-          <table className="w-full text-center text-xs font-mono">
+        <div className="border-t border-slate-800/80 bg-slate-950/60 px-3 py-2.5 overflow-x-auto">
+          <table className="w-full text-center text-xs sm:text-sm font-mono">
             <thead>
-              <tr className="text-slate-500 text-[10px] border-b border-slate-800">
-                <th className="py-1 px-1.5 text-left font-sans w-14">TEAM</th>
+              <tr className="text-slate-400 text-xs border-b border-slate-800">
+                <th className="py-1.5 px-2 text-left font-sans w-16">TEAM</th>
                 {linescore.innings.map((inn) => (
-                  <th key={inn.num} className="py-1 px-1 min-w-[20px]">
+                  <th key={inn.num} className="py-1.5 px-1.5 min-w-[22px] font-bold">
                     {inn.num}
                   </th>
                 ))}
-                <th className="py-1 px-1 font-bold text-slate-300 min-w-[24px]">R</th>
-                <th className="py-1 px-1 font-bold text-slate-300 min-w-[24px]">H</th>
-                <th className="py-1 px-1 font-bold text-slate-300 min-w-[24px]">E</th>
+                <th className="py-1.5 px-2 font-black text-slate-200 min-w-[28px]">R</th>
+                <th className="py-1.5 px-2 font-black text-slate-200 min-w-[28px]">H</th>
+                <th className="py-1.5 px-2 font-black text-slate-200 min-w-[28px]">E</th>
               </tr>
             </thead>
             <tbody>
               {/* ビジター行 */}
-              <tr className="border-b border-slate-800/50 text-slate-300">
-                <td className="py-1 px-1.5 text-left font-bold font-sans text-slate-200 truncate">
+              <tr className="border-b border-slate-800/50 text-slate-200">
+                <td className="py-1.5 px-2 text-left font-bold font-sans text-slate-100 truncate text-xs sm:text-sm">
                   {awayMeta?.abbreviation || 'AWAY'}
                 </td>
                 {linescore.innings.map((inn) => (
-                  <td key={`away-${inn.num}`} className="py-1 px-1">
+                  <td key={`away-${inn.num}`} className="py-1.5 px-1.5 font-medium">
                     {inn.away?.runs !== undefined ? inn.away.runs : '-'}
                   </td>
                 ))}
-                <td className="py-1 px-1 font-bold text-amber-400 bg-amber-950/20">{awayScore}</td>
-                <td className="py-1 px-1 text-slate-400">{awayHits}</td>
-                <td className="py-1 px-1 text-slate-400">{awayErrors}</td>
+                <td className="py-1.5 px-2 font-black text-amber-400 bg-amber-950/20 text-sm sm:text-base">{awayScore}</td>
+                <td className="py-1.5 px-2 text-slate-300 font-bold">{awayHits}</td>
+                <td className="py-1.5 px-2 text-slate-400">{awayErrors}</td>
               </tr>
               {/* ホーム行 */}
-              <tr className="text-slate-300">
-                <td className="py-1 px-1.5 text-left font-bold font-sans text-slate-200 truncate">
+              <tr className="text-slate-200">
+                <td className="py-1.5 px-2 text-left font-bold font-sans text-slate-100 truncate text-xs sm:text-sm">
                   {homeMeta?.abbreviation || 'HOME'}
                 </td>
                 {linescore.innings.map((inn) => (
-                  <td key={`home-${inn.num}`} className="py-1 px-1">
+                  <td key={`home-${inn.num}`} className="py-1.5 px-1.5 font-medium">
                     {inn.home?.runs !== undefined ? inn.home.runs : '-'}
                   </td>
                 ))}
-                <td className="py-1 px-1 font-bold text-amber-400 bg-amber-950/20">{homeScore}</td>
-                <td className="py-1 px-1 text-slate-400">{homeHits}</td>
-                <td className="py-1 px-1 text-slate-400">{homeErrors}</td>
+                <td className="py-1.5 px-2 font-black text-amber-400 bg-amber-950/20 text-sm sm:text-base">{homeScore}</td>
+                <td className="py-1.5 px-2 text-slate-300 font-bold">{homeHits}</td>
+                <td className="py-1.5 px-2 text-slate-400">{homeErrors}</td>
               </tr>
             </tbody>
           </table>

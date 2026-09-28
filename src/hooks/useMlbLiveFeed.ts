@@ -30,12 +30,12 @@ export function useMlbLiveFeed(gamePk?: number, options: UseMlbLiveFeedOptions =
     enabled: !!gamePk && (options.enabled ?? true),
     refetchInterval: (query) => {
       const data = query.state.data as LiveGameFeed | undefined;
-      if (!data) return 6000;
+      if (!data) return 3000;
 
       const state = data.gameData.status.abstractGameState;
       if (state === 'Live') {
-        // 進行中は5〜6秒の高速リアルタイムポーリング
-        return 5000;
+        // 進行中は3秒の超高速リアルタイムポーリング
+        return 3000;
       } else if (state === 'Preview') {
         // 試合前は30秒
         return 30000;
@@ -44,7 +44,7 @@ export function useMlbLiveFeed(gamePk?: number, options: UseMlbLiveFeedOptions =
         return false;
       }
     },
-    staleTime: 4000,
+    staleTime: 2000,
   });
 
   const liveData = query.data;
