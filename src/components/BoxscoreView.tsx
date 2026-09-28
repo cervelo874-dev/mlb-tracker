@@ -43,6 +43,31 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
   const currentTeamBox = selectedSide === 'away' ? awayTeam : homeTeam;
   const currentTeamMeta = selectedSide === 'away' ? awayMeta : homeMeta;
 
+  // 打者選出ロジック:
+  // MLB API では batters 配列に登板した投手も末尾に含まれてしまうため、
+  // 実際に打席に立った選手（野手、または打撃スタッツのある二刀流投手）のみに絞り込む
+  const isBatterEligible = (p: any): boolean => {
+    if (!p) return false;
+    const isPitcherPos =
+      p.position?.abbreviation === 'P' || p.primaryPosition?.abbreviation === 'P';
+    const bStats = p.stats?.batting;
+
+    // 打撃スタッツが存在しない、または空オブジェクトの場合は除外
+    if (!bStats || Object.keys(bStats).length === 0) {
+      return false;
+    }
+
+    // 投手登録選手は、打席に立っている（打席数 > 0 または 打数 > 0）場合のみ表示
+    if (isPitcherPos) {
+      const pa = bStats.plateAppearances ?? 0;
+      const ab = bStats.atBats ?? 0;
+      return pa > 0 || ab > 0;
+    }
+
+    // 野手（P以外）は代走・守備固め等含め打者テーブルに含める
+    return true;
+  };
+
   // 打者リストの抽出（打順・交代順）
   const batters: any[] = [];
   const battersIds: number[] = currentTeamBox?.batters || [];
@@ -51,12 +76,14 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
   if (battersIds.length > 0) {
     battersIds.forEach((id) => {
       const p = playersMap[`ID${id}`] || playersMap[id];
-      if (p) batters.push(p);
+      if (p && isBatterEligible(p)) {
+        batters.push(p);
+      }
     });
   } else {
     // batters 配列がない場合のフォールバック
     Object.values(playersMap).forEach((p: any) => {
-      if (p?.stats?.batting && (p.stats.batting.atBats !== undefined || p.stats.batting.plateAppearances)) {
+      if (isBatterEligible(p)) {
         batters.push(p);
       }
     });
