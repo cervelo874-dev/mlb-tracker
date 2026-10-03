@@ -182,37 +182,176 @@ const mainStats = (group: StatGroup, s?: Record<string, any>): StatItem[] => {
   ];
 };
 
-const detailStats = (group: StatGroup, s?: Record<string, any>): StatItem[] => {
+export interface StatBarItem {
+  key: string;
+  label: string;
+  subLabel: string;
+  value: string;
+  percent: number;
+  gradient: string;
+  glowColor: string;
+}
+
+export interface SummaryStatItem {
+  label: string;
+  value: string;
+}
+
+const getStatusBarStats = (group: StatGroup, s?: Record<string, any>): StatBarItem[] => {
+  if (!s) return [];
   if (group === 'hitting') {
+    const avgNum = parseFloat(s.avg) || 0;
+    const hrNum = parseInt(s.homeRuns, 10) || 0;
+    const rbiNum = parseInt(s.rbi, 10) || 0;
+    const opsNum = parseFloat(s.ops) || 0;
+    const obpNum = parseFloat(s.obp) || 0;
+    const sbNum = parseInt(s.stolenBases, 10) || 0;
+
     return [
-      { label: '試合', value: v(s?.gamesPlayed) },
-      { label: '打席', value: v(s?.plateAppearances) },
-      { label: '打数', value: v(s?.atBats) },
-      { label: '安打', value: v(s?.hits) },
-      { label: '二塁打', value: v(s?.doubles) },
-      { label: '三塁打', value: v(s?.triples) },
-      { label: '得点', value: v(s?.runs) },
-      { label: '盗塁', value: v(s?.stolenBases) },
-      { label: '四球', value: v(s?.baseOnBalls) },
-      { label: '三振', value: v(s?.strikeOuts) },
-      { label: '出塁率', value: v(s?.obp) },
-      { label: '長打率', value: v(s?.slg) },
+      {
+        key: 'avg',
+        label: '打率',
+        subLabel: 'AVG',
+        value: v(s.avg),
+        percent: Math.min(100, Math.max(8, Math.round(((avgNum - 0.180) / (0.340 - 0.180)) * 100))),
+        gradient: 'from-emerald-400 to-teal-300',
+        glowColor: 'rgba(52, 211, 153, 0.7)',
+      },
+      {
+        key: 'hr',
+        label: '本塁打',
+        subLabel: 'HR',
+        value: v(s.homeRuns),
+        percent: Math.min(100, Math.max(8, Math.round((hrNum / 45) * 100))),
+        gradient: 'from-amber-400 to-orange-500',
+        glowColor: 'rgba(251, 146, 60, 0.7)',
+      },
+      {
+        key: 'rbi',
+        label: '打点',
+        subLabel: 'RBI',
+        value: v(s.rbi),
+        percent: Math.min(100, Math.max(8, Math.round((rbiNum / 110) * 100))),
+        gradient: 'from-rose-400 to-pink-500',
+        glowColor: 'rgba(244, 63, 94, 0.7)',
+      },
+      {
+        key: 'ops',
+        label: 'OPS',
+        subLabel: 'OPS',
+        value: v(s.ops),
+        percent: Math.min(100, Math.max(8, Math.round(((opsNum - 0.550) / (1.000 - 0.550)) * 100))),
+        gradient: 'from-yellow-300 via-amber-400 to-amber-500',
+        glowColor: 'rgba(245, 158, 11, 0.8)',
+      },
+      {
+        key: 'obp',
+        label: '出塁率',
+        subLabel: 'OBP',
+        value: v(s.obp),
+        percent: Math.min(100, Math.max(8, Math.round(((obpNum - 0.260) / (0.420 - 0.260)) * 100))),
+        gradient: 'from-sky-400 to-blue-500',
+        glowColor: 'rgba(56, 189, 248, 0.7)',
+      },
+      {
+        key: 'sb',
+        label: '盗塁',
+        subLabel: 'SB',
+        value: v(s.stolenBases),
+        percent: Math.min(100, Math.max(8, Math.round((sbNum / 35) * 100))),
+        gradient: 'from-lime-400 to-emerald-400',
+        glowColor: 'rgba(163, 230, 53, 0.7)',
+      },
+    ];
+  } else {
+    // 投手
+    const eraNum = parseFloat(s.era) || 4.0;
+    const soNum = parseInt(s.strikeOuts, 10) || 0;
+    const whipNum = parseFloat(s.whip) || 1.3;
+    const avgNum = parseFloat(s.avg) || 0.25;
+    const k9Num = parseFloat(s.strikeoutsPer9Inn) || 0;
+    const ipNum = parseFloat(s.inningsPitched) || 0;
+
+    return [
+      {
+        key: 'era',
+        label: '防御率',
+        subLabel: 'ERA',
+        value: v(s.era),
+        percent: Math.min(100, Math.max(8, Math.round(((5.50 - eraNum) / (5.50 - 1.80)) * 100))),
+        gradient: 'from-yellow-300 via-amber-400 to-amber-500',
+        glowColor: 'rgba(245, 158, 11, 0.8)',
+      },
+      {
+        key: 'so',
+        label: '奪三振',
+        subLabel: 'SO',
+        value: v(s.strikeOuts),
+        percent: Math.min(100, Math.max(8, Math.round((soNum / 220) * 100))),
+        gradient: 'from-cyan-400 to-blue-500',
+        glowColor: 'rgba(34, 211, 238, 0.7)',
+      },
+      {
+        key: 'whip',
+        label: 'WHIP',
+        subLabel: 'WHIP',
+        value: v(s.whip),
+        percent: Math.min(100, Math.max(8, Math.round(((1.55 - whipNum) / (1.55 - 0.85)) * 100))),
+        gradient: 'from-emerald-400 to-teal-300',
+        glowColor: 'rgba(52, 211, 153, 0.7)',
+      },
+      {
+        key: 'baa',
+        label: '被打率',
+        subLabel: 'BAA',
+        value: v(s.avg),
+        percent: Math.min(100, Math.max(8, Math.round(((0.290 - avgNum) / (0.290 - 0.170)) * 100))),
+        gradient: 'from-purple-400 to-indigo-500',
+        glowColor: 'rgba(192, 132, 252, 0.7)',
+      },
+      {
+        key: 'k9',
+        label: '奪三振率',
+        subLabel: 'K/9',
+        value: v(s.strikeoutsPer9Inn),
+        percent: Math.min(100, Math.max(8, Math.round(((k9Num - 4.0) / (13.0 - 4.0)) * 100))),
+        gradient: 'from-orange-400 to-rose-400',
+        glowColor: 'rgba(251, 146, 60, 0.7)',
+      },
+      {
+        key: 'ip',
+        label: '投球回',
+        subLabel: 'IP',
+        value: v(s.inningsPitched),
+        percent: Math.min(100, Math.max(8, Math.round((ipNum / 190) * 100))),
+        gradient: 'from-sky-400 to-cyan-300',
+        glowColor: 'rgba(56, 189, 248, 0.7)',
+      },
     ];
   }
-  return [
-    { label: '登板', value: v(s?.gamesPitched) },
-    { label: '先発', value: v(s?.gamesStarted) },
-    { label: '投球回', value: v(s?.inningsPitched) },
-    { label: 'セーブ', value: v(s?.saves) },
-    { label: 'ホールド', value: v(s?.holds) },
-    { label: '被安打', value: v(s?.hits) },
-    { label: '被本塁打', value: v(s?.homeRuns) },
-    { label: '与四球', value: v(s?.baseOnBalls) },
-    { label: '被打率', value: v(s?.avg) },
-    { label: 'K/9', value: v(s?.strikeoutsPer9Inn) },
-    { label: 'BB/9', value: v(s?.walksPer9Inn) },
-    { label: 'K/BB', value: v(s?.strikeoutWalkRatio) },
-  ];
+};
+
+const getSummaryStats = (group: StatGroup, s?: Record<string, any>): SummaryStatItem[] => {
+  if (!s) return [];
+  if (group === 'hitting') {
+    return [
+      { label: '試合', value: v(s.gamesPlayed) },
+      { label: '打数', value: v(s.atBats) },
+      { label: '安打', value: v(s.hits) },
+      { label: '二塁打', value: v(s.doubles) },
+      { label: '四球', value: v(s.baseOnBalls) },
+      { label: '長打率', value: v(s.slg) },
+    ];
+  } else {
+    return [
+      { label: '登板', value: v(s.gamesPitched) },
+      { label: '先発', value: v(s.gamesStarted) },
+      { label: '勝敗', value: s ? `${s.wins ?? 0}-${s.losses ?? 0}` : '-' },
+      { label: 'セーブ', value: v(s.saves) },
+      { label: '被安打', value: v(s.hits) },
+      { label: '与四球', value: v(s.baseOnBalls) },
+    ];
+  }
 };
 
 const PERIOD_LABEL: Record<Period, string> = {
@@ -302,6 +441,9 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
 
   const currentStats = data?.[period]?.[group];
   const hasPost = !!(data?.post.hitting || data?.post.pitching);
+
+  const statusBarStats = useMemo(() => getStatusBarStats(group, currentStats), [group, currentStats]);
+  const summaryStats = useMemo(() => getSummaryStats(group, currentStats), [group, currentStats]);
 
   /* ---------------- 3D チルト & ホロ演出 ---------------- */
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -455,7 +597,7 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                   transition: 'opacity 0.2s ease',
                 }}
               >
-                <div className="relative w-full h-full rounded-[1.1rem] overflow-hidden flex flex-col" style={innerBg}>
+                <div className="relative w-full h-full rounded-[1.1rem] overflow-hidden flex flex-col justify-between" style={innerBg}>
                   {/* 背景の装飾パターン */}
                   <div
                     className="absolute inset-0 opacity-[0.12] pointer-events-none"
@@ -471,88 +613,99 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                     </div>
                   )}
 
-                  {/* ヘッダー：チームロゴ・シーズン */}
-                  <div className="relative z-10 flex items-center justify-between px-4 pt-3.5">
-                    <div className="w-11 h-11 rounded-full bg-white/90 p-1.5 shadow-lg ring-2 ring-amber-300/70 flex items-center justify-center">
-                      {team?.logo && <img src={team.logo} alt={team.name} className="w-full h-full object-contain" />}
-                    </div>
-                    <div className="text-right">
-                      <div className="text-[10px] font-black tracking-[0.25em] text-amber-200/90">{season} SEASON</div>
-                      <div className="text-xs font-bold text-white/80">{team?.jpName || person?.currentTeam?.name || ''}</div>
-                    </div>
-                  </div>
-
-                  {/* 選手写真（ダイナミック・アクション優先） */}
-                  <div className="relative z-10 flex-1 flex items-end justify-center min-h-0 -mt-1 overflow-hidden">
+                  {/* 選手写真（カード上部いっぱい〜中央まで広がるダイナミック背景レイヤー） */}
+                  <div className="absolute inset-x-0 top-0 bottom-[146px] overflow-hidden">
                     {imgStage < headshotUrls.length ? (
                       <img
                         key={imgStage}
                         src={headshotUrls[imgStage]}
                         alt={displayName}
-                        className="h-full max-h-full w-auto object-contain object-bottom drop-shadow-[0_12px_24px_rgba(0,0,0,0.7)] scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover object-[center_20%] drop-shadow-md transition-transform duration-500 scale-[1.03]"
                         referrerPolicy="no-referrer"
                         draggable={false}
                         onError={() => setImgStage((s) => s + 1)}
                       />
                     ) : (
-                      <div className="mb-10 text-white/30 text-6xl font-black">{number || '?'}</div>
+                      <div className="w-full h-full flex items-center justify-center text-white/20 text-7xl font-black">
+                        {number || '?'}
+                      </div>
                     )}
-                    {/* 写真下部のフェード */}
-                    <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0a0f1c] to-transparent pointer-events-none" />
+                    {/* 写真上部フェード（ロゴ・シーズン文字の視認性確保） */}
+                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 via-black/25 to-transparent pointer-events-none" />
+
+                    {/* 写真下部フェード（ネームプレートへのシームレスなグラデーション） */}
+                    <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/80 to-transparent pointer-events-none" />
                   </div>
 
-                  {/* ネームプレート */}
-                  <div className="relative z-10 px-3.5">
-                    <div
-                      className="rounded-xl px-3 py-2 border border-amber-300/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]"
-                      style={{ background: 'linear-gradient(180deg, rgba(15,20,35,0.85), rgba(5,8,15,0.95))' }}
-                    >
-                      <div className="flex items-center gap-2">
-                        {number && (
-                          <span
-                            className="text-xl font-black font-mono text-transparent bg-clip-text"
-                            style={{ backgroundImage: GOLD_FRAME }}
-                          >
-                            #{number}
+                  {/* ヘッダー：チームロゴ・シーズン（写真の上にフローティング配置） */}
+                  <div className="relative z-20 flex items-center justify-between px-4 pt-3.5 drop-shadow-md">
+                    <div className="w-11 h-11 rounded-full bg-white/95 p-1.5 shadow-xl ring-2 ring-amber-300/80 flex items-center justify-center backdrop-blur-sm">
+                      {team?.logo && <img src={team.logo} alt={team.name} className="w-full h-full object-contain" />}
+                    </div>
+                    <div className="text-right bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/15 shadow-lg">
+                      <div className="text-[10px] font-black tracking-[0.25em] text-amber-300">{season} SEASON</div>
+                      <div className="text-xs font-black text-white">{team?.jpName || person?.currentTeam?.name || ''}</div>
+                    </div>
+                  </div>
+
+                  {/* 中央スペーサー（写真を見せるための十分なスペース） */}
+                  <div className="flex-1 min-h-[140px]" />
+
+                  {/* 下部：ネームプレート＆主要成績 */}
+                  <div className="relative z-20">
+                    {/* ネームプレート */}
+                    <div className="px-3.5">
+                      <div
+                        className="rounded-xl px-3 py-2 border border-amber-300/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] backdrop-blur-md"
+                        style={{ background: 'linear-gradient(180deg, rgba(15,20,35,0.88), rgba(5,8,15,0.96))' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          {number && (
+                            <span
+                              className="text-xl font-black font-mono text-transparent bg-clip-text"
+                              style={{ backgroundImage: GOLD_FRAME }}
+                            >
+                              #{number}
+                            </span>
+                          )}
+                          <span className="text-xl sm:text-2xl font-black text-white truncate tracking-tight">
+                            {displayName || '...'}
                           </span>
-                        )}
-                        <span className="text-xl sm:text-2xl font-black text-white truncate tracking-tight">
-                          {displayName || '...'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between mt-0.5">
-                        <span className="text-xs text-slate-300 font-semibold truncate">
-                          {showEnglishSub ? englishName : ''}
-                        </span>
-                        <span className="text-xs font-bold text-amber-200 whitespace-nowrap">
-                          {posJa}
-                          {person && ` · ${handJa(person?.pitchHand?.code)}投${handJa(person?.batSide?.code)}打`}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 主要成績 */}
-                  <div className="relative z-10 px-3.5 pt-2 pb-3.5">
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {mainStats(group, currentStats).map((it) => (
-                        <div
-                          key={it.label}
-                          className="rounded-lg py-1.5 text-center bg-black/45 border border-white/10"
-                        >
-                          <div className="text-[10px] font-bold text-slate-300">{it.label}</div>
-                          <div
-                            className={`text-base sm:text-lg font-black font-mono leading-tight ${
-                              it.highlight ? 'text-amber-300' : 'text-white'
-                            }`}
-                          >
-                            {loading ? '…' : it.value}
-                          </div>
                         </div>
-                      ))}
+                        <div className="flex items-center justify-between mt-0.5">
+                          <span className="text-xs text-slate-300 font-semibold truncate">
+                            {showEnglishSub ? englishName : ''}
+                          </span>
+                          <span className="text-xs font-bold text-amber-200 whitespace-nowrap">
+                            {posJa}
+                            {person && ` · ${handJa(person?.pitchHand?.code)}投${handJa(person?.batSide?.code)}打`}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="mt-1.5 text-center text-[10px] font-bold tracking-widest text-amber-100/70">
-                      {PERIOD_LABEL[period]} · {group === 'hitting' ? '打撃成績' : '投球成績'}
+
+                    {/* 主要成績 */}
+                    <div className="px-3.5 pt-2 pb-3.5">
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {mainStats(group, currentStats).map((it) => (
+                          <div
+                            key={it.label}
+                            className="rounded-lg py-1.5 text-center bg-black/55 backdrop-blur-sm border border-white/10"
+                          >
+                            <div className="text-[10px] font-bold text-slate-300">{it.label}</div>
+                            <div
+                              className={`text-base sm:text-lg font-black font-mono leading-tight ${
+                                it.highlight ? 'text-amber-300' : 'text-white'
+                              }`}
+                            >
+                              {loading ? '…' : it.value}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-1.5 text-center text-[10px] font-bold tracking-widest text-amber-100/70">
+                        {PERIOD_LABEL[period]} · {group === 'hitting' ? '打撃成績' : '投球成績'}
+                      </div>
                     </div>
                   </div>
 
@@ -571,7 +724,7 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                 }}
               >
                 <div
-                  className="relative w-full h-full rounded-[1.1rem] overflow-hidden flex flex-col justify-between"
+                  className="relative w-full h-full rounded-[1.1rem] overflow-hidden flex flex-col justify-between p-3"
                   style={{
                     background: `linear-gradient(170deg, #0d1322 0%, #0a0f1c 55%, ${primary}66 100%)`,
                   }}
@@ -585,11 +738,11 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                     }}
                   />
 
-                  {/* 裏面ヘッダー */}
-                  <div className="relative z-10 flex items-center justify-between px-3.5 pt-3 pb-2 border-b border-amber-300/25">
+                  {/* ① 裏面ヘッダー */}
+                  <div className="relative z-10 flex items-center justify-between pb-2 border-b border-amber-300/25">
                     <div className="flex items-center gap-2 min-w-0">
                       {team?.logo && (
-                        <div className="w-7 h-7 rounded-full bg-white/90 p-0.5 flex-shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-white/95 p-0.5 flex-shrink-0 shadow">
                           <img src={team.logo} alt="" className="w-full h-full object-contain" />
                         </div>
                       )}
@@ -604,67 +757,80 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <span className="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded bg-amber-400/20 text-amber-200 border border-amber-400/30">
+                      <span className="text-[10px] sm:text-[11px] font-black px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/25 to-amber-400/35 text-amber-200 border border-amber-400/40 shadow-sm">
                         {PERIOD_LABEL[period]}
                       </span>
                     </div>
                   </div>
 
-                  {/* プロフィール（6項目） */}
-                  <div className="relative z-10 grid grid-cols-3 gap-1 px-3 pt-1.5">
-                    {[
-                      { label: '年齢', value: person?.currentAge ? `${person.currentAge}歳` : '-' },
-                      { label: '身長', value: heightToCm(person?.height) },
-                      { label: '体重', value: lbsToKg(person?.weight) },
-                      {
-                        label: '出身',
-                        value: person?.birthCountry
-                          ? COUNTRY_JA[person.birthCountry] || person.birthCountry
-                          : '-',
-                      },
-                      { label: '投打', value: person ? `${handJa(person?.pitchHand?.code)}投${handJa(person?.batSide?.code)}打` : '-' },
-                      { label: 'デビュー', value: person?.mlbDebutDate ? person.mlbDebutDate.slice(0, 4) + '年' : '-' },
-                    ].map((it) => (
-                      <div key={it.label} className="rounded-lg bg-white/5 border border-white/10 px-1.5 py-1 text-center">
-                        <div className="text-[9px] text-slate-400 font-bold">{it.label}</div>
-                        <div className="text-xs font-black text-slate-100 truncate">{it.value}</div>
-                      </div>
-                    ))}
+                  {/* ② プロフィール（上部コンパクトグリッド） */}
+                  <div className="relative z-10 grid grid-cols-4 gap-1 pt-1.5 text-center">
+                    <div className="rounded-lg bg-white/5 border border-white/10 px-1 py-1">
+                      <div className="text-[9px] text-slate-400 font-bold">年齢</div>
+                      <div className="text-[11px] font-black text-slate-100">{person?.currentAge ? `${person.currentAge}歳` : '-'}</div>
+                    </div>
+                    <div className="rounded-lg bg-white/5 border border-white/10 px-1 py-1">
+                      <div className="text-[9px] text-slate-400 font-bold">体格</div>
+                      <div className="text-[11px] font-black text-slate-100">{heightToCm(person?.height)} / {lbsToKg(person?.weight)}</div>
+                    </div>
+                    <div className="rounded-lg bg-white/5 border border-white/10 px-1 py-1">
+                      <div className="text-[9px] text-slate-400 font-bold">投打</div>
+                      <div className="text-[11px] font-black text-slate-100">{person ? `${handJa(person?.pitchHand?.code)}投${handJa(person?.batSide?.code)}打` : '-'}</div>
+                    </div>
+                    <div className="rounded-lg bg-white/5 border border-white/10 px-1 py-1">
+                      <div className="text-[9px] text-slate-400 font-bold">出身</div>
+                      <div className="text-[11px] font-black text-slate-100 truncate">{person?.birthCountry ? COUNTRY_JA[person.birthCountry] || person.birthCountry : '-'}</div>
+                    </div>
                   </div>
 
-                  {/* 詳細成績（4列 × 4行 = 16項目） */}
-                  <div className="relative z-10 flex-1 px-3 pt-2 pb-2.5 min-h-0 flex flex-col justify-center">
-                    {currentStats ? (
-                      <div className="grid grid-cols-4 gap-1">
-                        {[...mainStats(group, currentStats), ...detailStats(group, currentStats)].map((it) => (
-                          <div
-                            key={it.label}
-                            className="rounded-lg p-1 bg-black/45 border border-amber-200/15 flex flex-col items-center justify-center text-center"
-                          >
-                            <span className="text-[9px] font-bold text-slate-400 leading-tight truncate w-full">
-                              {it.label}
+                  {/* ③ 主要6項目 スタイリッシュ・ネオンステータスバー（中央） */}
+                  <div className="relative z-10 flex-1 flex flex-col justify-center space-y-1.5 my-1 px-1">
+                    {statusBarStats.length > 0 ? (
+                      statusBarStats.map((item) => (
+                        <div key={item.key} className="space-y-0.5">
+                          <div className="flex items-center justify-between text-[11px] leading-tight">
+                            <span className="font-bold text-slate-300 flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-400/80 shadow-[0_0_4px_rgba(251,191,36,0.8)]" />
+                              <span>{item.label}</span>
+                              <span className="text-[9px] text-slate-400 font-mono font-medium">({item.subLabel})</span>
                             </span>
-                            <span
-                              className={`text-xs sm:text-[13px] font-black font-mono leading-tight mt-0.5 ${
-                                it.highlight ? 'text-amber-300' : 'text-white'
-                              }`}
-                            >
-                              {it.value}
+                            <span className="font-black font-mono text-xs text-white">
+                              {item.value}
                             </span>
                           </div>
-                        ))}
-                      </div>
+                          {/* プログレスバー溝 */}
+                          <div className="w-full h-2 rounded-full bg-slate-900/95 border border-slate-700/60 overflow-hidden p-[1px]">
+                            <div
+                              className={`h-full rounded-full bg-gradient-to-r ${item.gradient} transition-all duration-700 ease-out`}
+                              style={{
+                                width: `${item.percent}%`,
+                                boxShadow: `0 0 8px ${item.glowColor}`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))
                     ) : (
                       <div className="h-full flex items-center justify-center text-xs text-slate-400 font-bold text-center px-4">
-                        {loading ? '読み込み中…' : `${PERIOD_LABEL[period]}の成績はありません`}
+                        {loading ? '読み込み中…' : `${PERIOD_LABEL[period]}のデータはありません`}
                       </div>
                     )}
                   </div>
 
-                  {/* カード裏面フッター */}
-                  <div className="relative z-10 px-3 pb-2 pt-1 border-t border-white/10 text-center">
-                    <span className="text-[9px] font-bold text-amber-200/70 tracking-widest uppercase">
-                      OFFICIAL MLB CARD · {group === 'hitting' ? 'BATTING RECORD' : 'PITCHING RECORD'}
+                  {/* ④ 補足データ（下部ミニバッジグリッド） */}
+                  <div className="relative z-10 grid grid-cols-6 gap-1 pt-1.5 border-t border-white/10 text-center">
+                    {summaryStats.map((item, idx) => (
+                      <div key={idx} className="bg-black/45 rounded-md py-1 px-0.5 border border-white/10 shadow-sm">
+                        <div className="text-[8px] text-slate-400 font-bold leading-tight truncate">{item.label}</div>
+                        <div className="text-[10px] font-mono font-black text-slate-100 leading-tight mt-0.5 truncate">{item.value}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* ⑤ フッター刻印 */}
+                  <div className="relative z-10 pt-1 text-center">
+                    <span className="text-[8px] font-bold text-amber-200/60 tracking-widest uppercase">
+                      OFFICIAL MLB PLAYER CARD · {group === 'hitting' ? 'BATTING METRICS' : 'PITCHING METRICS'}
                     </span>
                   </div>
 
