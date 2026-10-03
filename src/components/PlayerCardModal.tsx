@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, RotateCw, Loader2 } from 'lucide-react';
 import { MLB_TEAMS } from '../constants/teams';
 import { getPlayerDisplayName } from '../utils/translator';
+import { triggerVibration, VIBRATION_PATTERNS } from '../utils/vibrate';
 
 /* ------------------------------------------------------------------ */
 /* 型定義                                                              */
@@ -243,6 +244,7 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
   /* 選手が切り替わったらリセット & 取得 */
   useEffect(() => {
     if (!selection) return;
+    triggerVibration(VIBRATION_PATTERNS.lightTap);
     let cancelled = false;
     setPeriod('regular');
     setGroup(selection.preferredGroup);
@@ -335,6 +337,7 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
       movedRef.current = false;
       return;
     }
+    triggerVibration(VIBRATION_PATTERNS.lightTap);
     setFlipped((f) => !f);
   };
 
@@ -694,7 +697,10 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                 <button
                   key={p}
                   disabled={disabled}
-                  onClick={() => setPeriod(p)}
+                  onClick={() => {
+                    triggerVibration(VIBRATION_PATTERNS.lightTap);
+                    setPeriod(p);
+                  }}
                   className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-black transition-all ${
                     period === p
                       ? 'text-slate-950 shadow-[0_0_12px_rgba(245,180,60,0.5)]'
@@ -716,7 +722,10 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
               {(['hitting', 'pitching'] as StatGroup[]).map((g) => (
                 <button
                   key={g}
-                  onClick={() => setGroup(g)}
+                  onClick={() => {
+                    triggerVibration(VIBRATION_PATTERNS.lightTap);
+                    setGroup(g);
+                  }}
                   className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-black transition-all ${
                     group === g ? 'bg-slate-100 text-slate-950' : 'text-slate-300 hover:text-white'
                   }`}
@@ -728,7 +737,10 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
           )}
 
           <button
-            onClick={() => setFlipped((f) => !f)}
+            onClick={() => {
+              triggerVibration(VIBRATION_PATTERNS.lightTap);
+              setFlipped((f) => !f);
+            }}
             className="w-full flex items-center justify-center gap-1.5 text-xs font-bold text-amber-200/80 py-1"
           >
             <RotateCw className="w-3.5 h-3.5" />
