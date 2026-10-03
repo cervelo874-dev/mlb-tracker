@@ -11,6 +11,8 @@ import { PitchSequencePills } from './components/PitchSequencePills';
 import { StrikeZone } from './components/StrikeZone';
 import { PlayFeed } from './components/PlayFeed';
 import { BoxscoreView } from './components/BoxscoreView';
+import { PlayerCardModal } from './components/PlayerCardModal';
+import type { PlayerSelection } from './components/PlayerCardModal';
 import { HomeRunCelebration } from './components/HomeRunCelebration';
 import type { HomeRunDetails } from './components/HomeRunCelebration';
 import { HardHitAlert } from './components/HardHitAlert';
@@ -109,6 +111,8 @@ export default function App() {
 
   // 下部セクション表示タブ（実況タイムライン or 選手成績ボックススコア）
   const [activeBottomTab, setActiveBottomTab] = useState<'feed' | 'boxscore'>('feed');
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerSelection | null>(null);
+  const closePlayerCard = useCallback(() => setSelectedPlayer(null), []);
 
   const handleOpenBoxscore = useCallback(() => {
     setActiveBottomTab('boxscore');
@@ -404,6 +408,7 @@ export default function App() {
                   boxscore={feed?.liveData?.boxscore}
                   probablePitchers={feed?.gameData?.probablePitchers}
                   isPreGame={feed?.gameData?.status?.abstractGameState === 'Preview'}
+                  onPlayerSelect={setSelectedPlayer}
                 />
               </div>
             </div>
@@ -461,9 +466,17 @@ export default function App() {
                 <BoxscoreView
                   boxscore={feed?.liveData?.boxscore}
                   gameData={feed?.gameData}
+                  onPlayerSelect={setSelectedPlayer}
                 />
               )}
             </div>
+
+            {/* 選手トレーディングカード */}
+            <PlayerCardModal
+              selection={selectedPlayer}
+              season={feed?.gameData?.game?.season || String(new Date().getFullYear())}
+              onClose={closePlayerCard}
+            />
           </>
         )}
 

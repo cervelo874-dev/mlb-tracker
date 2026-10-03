@@ -2,6 +2,7 @@ import React from 'react';
 import type { PlayerBasic } from '../types/mlb';
 import { getPlayerDisplayName } from '../utils/translator';
 import { Shield, Target, Activity } from 'lucide-react';
+import type { PlayerSelection } from './PlayerCardModal';
 
 interface MatchupCardProps {
   pitcher?: PlayerBasic;
@@ -19,6 +20,8 @@ interface MatchupCardProps {
     home?: PlayerBasic;
   };
   isPreGame?: boolean;
+  /** 選手（写真・名前）タップ時に選手カードを開く */
+  onPlayerSelect?: (selection: PlayerSelection) => void;
 }
 
 export const MatchupCard: React.FC<MatchupCardProps> = ({
@@ -29,6 +32,7 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
   boxscore,
   probablePitchers,
   isPreGame = false,
+  onPlayerSelect,
 }) => {
   // 試合前で実況バッテリーが未定の場合、予告先発投手同士のプレビュー対決を表示
   const showProbables = isPreGame && probablePitchers && (probablePitchers.away || probablePitchers.home);
@@ -105,7 +109,15 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
         {/* 左側: 投手（または先攻予告先発） */}
         <div className="flex flex-col gap-2 pr-1">
           {/* アイコン & 氏名 */}
-          <div className="flex items-center gap-2">
+          <div
+            className={`flex items-center gap-2 rounded-xl -m-1 p-1 transition-colors ${
+              pitcherId && onPlayerSelect ? 'cursor-pointer hover:bg-white/5 active:bg-amber-500/10' : ''
+            }`}
+            onClick={() =>
+              pitcherId &&
+              onPlayerSelect?.({ id: pitcherId, fullName: activePitcher?.fullName, preferredGroup: 'pitching' })
+            }
+          >
             <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-slate-800 border-2 border-slate-700 flex-shrink-0 shadow">
               {pitcherId ? (
                 <img
@@ -182,7 +194,19 @@ export const MatchupCard: React.FC<MatchupCardProps> = ({
         {/* 右側: 打者 または 後攻予告先発投手 */}
         <div className="flex flex-col gap-2 pl-2">
           {/* アイコン & 氏名 */}
-          <div className="flex items-center gap-2">
+          <div
+            className={`flex items-center gap-2 rounded-xl -m-1 p-1 transition-colors ${
+              opponentId && onPlayerSelect ? 'cursor-pointer hover:bg-white/5 active:bg-amber-500/10' : ''
+            }`}
+            onClick={() =>
+              opponentId &&
+              onPlayerSelect?.({
+                id: opponentId,
+                fullName: activeOpponent?.fullName,
+                preferredGroup: showProbables ? 'pitching' : 'hitting',
+              })
+            }
+          >
             <div
               className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-slate-800 border-2 ${
                 showProbables ? 'border-sky-600/60' : 'border-amber-600/60'

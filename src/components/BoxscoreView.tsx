@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MLB_TEAMS } from '../constants/teams';
 import { getPlayerDisplayName, formatPlayerPositions } from '../utils/translator';
 import { Users, Shield } from 'lucide-react';
+import type { PlayerSelection } from './PlayerCardModal';
 
 interface BoxscoreViewProps {
   boxscore?: {
@@ -17,12 +18,15 @@ interface BoxscoreViewProps {
     };
   };
   className?: string;
+  /** 選手行タップ時に選手カードを開く */
+  onPlayerSelect?: (selection: PlayerSelection) => void;
 }
 
 export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
   boxscore,
   gameData,
   className = '',
+  onPlayerSelect,
 }) => {
   const [selectedSide, setSelectedSide] = useState<'away' | 'home'>('away');
 
@@ -159,6 +163,11 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
               <h3 className="text-base sm:text-lg font-black text-slate-100 tracking-wide">
                 打者
               </h3>
+              {onPlayerSelect && (
+                <span className="text-[11px] sm:text-xs font-bold text-amber-300/80">
+                  ✦ 選手をタップでカード表示
+                </span>
+              )}
             </div>
             {currentTeamMeta && (
               <span
@@ -208,7 +217,16 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
                     return (
                       <tr
                         key={`batter-${id}-${idx}`}
-                        className="hover:bg-slate-800/30 transition-colors"
+                        onClick={() =>
+                          player.person?.id &&
+                          onPlayerSelect?.({
+                            id: player.person.id,
+                            fullName: rawName,
+                            preferredGroup: 'hitting',
+                            teamId: selectedSide === 'away' ? awayTeamId : homeTeamId,
+                          })
+                        }
+                        className="hover:bg-slate-800/30 active:bg-amber-500/10 transition-colors cursor-pointer"
                       >
                         <td className="py-2.5 px-3 sm:px-4">
                           <div className="flex items-baseline gap-1.5 flex-wrap">
@@ -310,7 +328,16 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
                     return (
                       <tr
                         key={`pitcher-${id}-${idx}`}
-                        className="hover:bg-slate-800/30 transition-colors"
+                        onClick={() =>
+                          player.person?.id &&
+                          onPlayerSelect?.({
+                            id: player.person.id,
+                            fullName: rawName,
+                            preferredGroup: 'pitching',
+                            teamId: selectedSide === 'away' ? awayTeamId : homeTeamId,
+                          })
+                        }
+                        className="hover:bg-slate-800/30 active:bg-amber-500/10 transition-colors cursor-pointer"
                       >
                         <td className="py-2.5 px-3 sm:px-4">
                           <div className="flex items-baseline gap-1.5">

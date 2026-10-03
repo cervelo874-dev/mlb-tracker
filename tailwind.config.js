@@ -29,8 +29,23 @@ export default {
         'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'glow-gold': 'glowGold 2.4s ease-in-out infinite',
         'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+        'card-enter': 'cardEnter 0.7s cubic-bezier(.2,1.2,.4,1) both',
+        'holo-idle': 'holoIdle 5s ease-in-out infinite',
+        'fade-in': 'fadeIn 0.25s ease-out both',
       },
       keyframes: {
+        cardEnter: {
+          '0%': { opacity: '0', transform: 'translateY(40px) scale(0.85) rotateY(-25deg)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1) rotateY(0deg)' },
+        },
+        holoIdle: {
+          '0%, 100%': { backgroundPosition: '0% 0%' },
+          '50%': { backgroundPosition: '100% 100%' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
         glowGold: {
           '0%, 100%': {
             boxShadow: '0 0 12px rgba(245, 158, 11, 0.45), 0 0 0 2px rgba(245, 158, 11, 0.45)',
