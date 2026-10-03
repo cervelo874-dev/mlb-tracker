@@ -125,7 +125,7 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
             <img
               src={awayMeta.logo}
               alt={awayTeamName}
-              className="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow"
+              className="w-5 h-5 sm:w-6 sm:h-6 object-contain filter drop-shadow-[0_0_2px_rgba(255,255,255,0.7)]"
             />
           )}
           <span>{awayTeamName}</span>
@@ -143,7 +143,7 @@ export const BoxscoreView: React.FC<BoxscoreViewProps> = ({
             <img
               src={homeMeta.logo}
               alt={homeTeamName}
-              className="w-5 h-5 sm:w-6 sm:h-6 object-contain drop-shadow"
+              className="w-5 h-5 sm:w-6 sm:h-6 object-contain filter drop-shadow-[0_0_2px_rgba(255,255,255,0.7)]"
             />
           )}
           <span>{homeTeamName}</span>

@@ -27,13 +27,19 @@ export default {
       },
       animation: {
         'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'glow-gold': 'glowGold 2s ease-in-out infinite alternate',
+        'glow-gold': 'glowGold 2.4s ease-in-out infinite',
         'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
       },
       keyframes: {
         glowGold: {
-          '0%': { boxShadow: '0 0 15px rgba(245, 158, 11, 0.4), inset 0 0 15px rgba(245, 158, 11, 0.2)' },
-          '100%': { boxShadow: '0 0 30px rgba(245, 158, 11, 0.8), inset 0 0 25px rgba(245, 158, 11, 0.5)' },
+          '0%, 100%': {
+            boxShadow: '0 0 12px rgba(245, 158, 11, 0.45), 0 0 0 2px rgba(245, 158, 11, 0.45)',
+            transform: 'scale(1.03)',
+          },
+          '50%': {
+            boxShadow: '0 0 28px rgba(245, 158, 11, 0.85), 0 0 45px rgba(245, 158, 11, 0.3), 0 0 0 3px rgba(251, 191, 36, 0.9)',
+            transform: 'scale(1.06)',
+          },
         },
         shake: {
           '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },

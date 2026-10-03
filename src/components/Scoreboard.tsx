@@ -48,6 +48,10 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
   const inningHalf = linescore?.inningHalf || (isTopInning ? 'Top' : 'Bottom');
   const inningHalfJa = inningHalf === 'Top' ? '表' : '裏';
 
+  // 攻撃中判定（試合中 Live 時のみ）
+  const isAwayAttacking = state === 'Live' && isTopInning;
+  const isHomeAttacking = state === 'Live' && !isTopInning;
+
   // 試合日時のフォーマット
   const formattedGameTime = React.useMemo(() => {
     if (!gameDate) return '';
@@ -102,23 +106,57 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
       </div>
 
       {/* メインスコアエリア */}
-      <div className="p-3 sm:p-5 grid grid-cols-7 items-center gap-2">
+      <div className="pt-5 sm:pt-6 pb-3 sm:pb-5 px-3 sm:px-5 grid grid-cols-7 items-center gap-2">
         {/* ビジターチーム */}
         <div className="col-span-3 flex flex-col items-center text-center">
-          <div className="relative w-14 h-14 sm:w-18 sm:h-18 mb-1.5 sm:mb-2 p-1.5 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shadow-lg group hover:scale-105 transition-transform">
+          <div
+            className={`relative w-16 h-16 sm:w-20 sm:h-20 mb-2 p-2 rounded-2xl flex items-center justify-center transition-all duration-300 group hover:scale-105 ${
+              isAwayAttacking
+                ? 'scale-105 ring-2 sm:ring-[3px] ring-amber-400 border border-amber-300/80 shadow-[0_0_22px_rgba(245,158,11,0.65),0_0_10px_rgba(245,158,11,0.9)] animate-glow-gold'
+                : 'border border-white/20 shadow-md'
+            } ${state === 'Live' && !isAwayAttacking ? 'opacity-80' : 'opacity-100'}`}
+            style={{
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(241, 245, 249, 0.88) 100%)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+            }}
+          >
+            {/* 攻撃中バッジ */}
+            {isAwayAttacking && (
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 font-black text-[9px] sm:text-[10px] tracking-wider uppercase shadow-[0_2px_8px_rgba(245,158,11,0.65)] border border-amber-200 flex items-center gap-1 whitespace-nowrap animate-pulse">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
+                <span>攻撃中</span>
+              </div>
+            )}
+
+            {/* 内部ソフトバックライト */}
+            <div className="absolute inset-1 rounded-xl bg-radial from-white via-white/50 to-transparent pointer-events-none" />
+
             {awayMeta?.logo ? (
               <img
                 src={awayMeta.logo}
                 alt={awayMeta.name}
-                className="w-full h-full object-contain filter drop-shadow"
+                className="relative z-10 w-full h-full object-contain filter drop-shadow transition-transform duration-200"
                 loading="eager"
               />
             ) : (
-              <div className="text-base font-bold">{awayTeam?.name.substring(0, 3)}</div>
+              <div className="relative z-10 text-base sm:text-lg font-black text-slate-800">
+                {awayTeam?.name.substring(0, 3)}
+              </div>
             )}
           </div>
-          <span className="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">VISITOR</span>
-          <span className="text-lg sm:text-xl font-black text-slate-100 tracking-tight leading-tight mt-0.5">
+          <span
+            className={`text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors ${
+              isAwayAttacking ? 'text-amber-400' : 'text-slate-400'
+            }`}
+          >
+            VISITOR
+          </span>
+          <span
+            className={`text-lg sm:text-xl font-black tracking-tight leading-tight mt-0.5 transition-colors ${
+              isAwayAttacking ? 'text-amber-300' : 'text-slate-100'
+            }`}
+          >
             {awayMeta?.jpName || awayTeam?.name}
           </span>
           <span className="text-xs text-slate-400 font-mono font-bold mt-0.5">
@@ -158,20 +196,54 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({
 
         {/* ホームチーム */}
         <div className="col-span-3 flex flex-col items-center text-center">
-          <div className="relative w-14 h-14 sm:w-18 sm:h-18 mb-1.5 sm:mb-2 p-1.5 rounded-2xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-center shadow-lg group hover:scale-105 transition-transform">
+          <div
+            className={`relative w-16 h-16 sm:w-20 sm:h-20 mb-2 p-2 rounded-2xl flex items-center justify-center transition-all duration-300 group hover:scale-105 ${
+              isHomeAttacking
+                ? 'scale-105 ring-2 sm:ring-[3px] ring-amber-400 border border-amber-300/80 shadow-[0_0_22px_rgba(245,158,11,0.65),0_0_10px_rgba(245,158,11,0.9)] animate-glow-gold'
+                : 'border border-white/20 shadow-md'
+            } ${state === 'Live' && !isHomeAttacking ? 'opacity-80' : 'opacity-100'}`}
+            style={{
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(241, 245, 249, 0.88) 100%)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+            }}
+          >
+            {/* 攻撃中バッジ */}
+            {isHomeAttacking && (
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 font-black text-[9px] sm:text-[10px] tracking-wider uppercase shadow-[0_2px_8px_rgba(245,158,11,0.65)] border border-amber-200 flex items-center gap-1 whitespace-nowrap animate-pulse">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping inline-block" />
+                <span>攻撃中</span>
+              </div>
+            )}
+
+            {/* 内部ソフトバックライト */}
+            <div className="absolute inset-1 rounded-xl bg-radial from-white via-white/50 to-transparent pointer-events-none" />
+
             {homeMeta?.logo ? (
               <img
                 src={homeMeta.logo}
                 alt={homeMeta.name}
-                className="w-full h-full object-contain filter drop-shadow"
+                className="relative z-10 w-full h-full object-contain filter drop-shadow transition-transform duration-200"
                 loading="eager"
               />
             ) : (
-              <div className="text-base font-bold">{homeTeam?.name.substring(0, 3)}</div>
+              <div className="relative z-10 text-base sm:text-lg font-black text-slate-800">
+                {homeTeam?.name.substring(0, 3)}
+              </div>
             )}
           </div>
-          <span className="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">HOME</span>
-          <span className="text-lg sm:text-xl font-black text-slate-100 tracking-tight leading-tight mt-0.5">
+          <span
+            className={`text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-colors ${
+              isHomeAttacking ? 'text-amber-400' : 'text-slate-400'
+            }`}
+          >
+            HOME
+          </span>
+          <span
+            className={`text-lg sm:text-xl font-black tracking-tight leading-tight mt-0.5 transition-colors ${
+              isHomeAttacking ? 'text-amber-300' : 'text-slate-100'
+            }`}
+          >
             {homeMeta?.jpName || homeTeam?.name}
           </span>
           <span className="text-xs text-slate-400 font-mono font-bold mt-0.5">
