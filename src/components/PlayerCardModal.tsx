@@ -493,12 +493,12 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
   const number = person?.primaryNumber;
 
   const headshotUrls = [
-    // 1. 最優先: 試合中のダイナミックなアクションショット（打撃・投球フォーム等の全身/半身切り抜き）
-    `https://img.mlbstatic.com/mlb-photos/image/upload/w_600,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
-    // 2. フォールバック1: 高解像度公式キャップ着用バストアップ切り抜き
-    `https://img.mlbstatic.com/mlb-photos/image/upload/w_480,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${selection.id}/headshot/silo/current.png`,
-    // 3. フォールバック2: 公式ヘッドショット67
-    `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/${selection.id}/headshot/67/current`,
+    // 1. 最優先: 試合中のダイナミックなアクションショット（最高解像度 w_1600）
+    `https://img.mlbstatic.com/mlb-photos/image/upload/w_1600,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
+    // 2. フォールバック1: 高解像度公式キャップ着用バストアップ切り抜き (w_1200)
+    `https://img.mlbstatic.com/mlb-photos/image/upload/w_1200,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${selection.id}/headshot/silo/current.png`,
+    // 3. フォールバック2: 公式ヘッドショット67 (w_1200)
+    `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_1200,q_auto:best/v1/people/${selection.id}/headshot/67/current`,
   ];
 
   /* 共通: カード面のベーススタイル */
@@ -613,28 +613,40 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                     </div>
                   )}
 
-                  {/* 選手写真（カード上部いっぱい〜中央まで広がるダイナミック背景レイヤー） */}
+                  {/* 選手写真（カード上部いっぱい〜中央全体） */}
                   <div className="absolute inset-x-0 top-0 bottom-[146px] overflow-hidden">
                     {imgStage < headshotUrls.length ? (
-                      <img
-                        key={imgStage}
-                        src={headshotUrls[imgStage]}
-                        alt={displayName}
-                        className="w-full h-full object-cover object-[center_20%] drop-shadow-md transition-transform duration-500 scale-[1.03]"
-                        referrerPolicy="no-referrer"
-                        draggable={false}
-                        onError={() => setImgStage((s) => s + 1)}
-                      />
+                      <>
+                        {/* 背面: スタジアムの光彩・熱気を上部全体に広げるアンビエントブラー層 */}
+                        <img
+                          src={headshotUrls[imgStage]}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-45 scale-125 pointer-events-none"
+                          referrerPolicy="no-referrer"
+                        />
+
+                        {/* 前面: 無理な過剰ズームを抑え、最高画質(w_1600)でフォーム全体がクッキリ収まるメイン写真 */}
+                        <img
+                          key={imgStage}
+                          src={headshotUrls[imgStage]}
+                          alt={displayName}
+                          className="relative z-10 w-full h-full object-contain object-bottom drop-shadow-[0_12px_24px_rgba(0,0,0,0.7)] transition-transform duration-500"
+                          referrerPolicy="no-referrer"
+                          draggable={false}
+                          onError={() => setImgStage((s) => s + 1)}
+                        />
+                      </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white/20 text-7xl font-black">
                         {number || '?'}
                       </div>
                     )}
                     {/* 写真上部フェード（ロゴ・シーズン文字の視認性確保） */}
-                    <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 via-black/25 to-transparent pointer-events-none" />
+                    <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/55 via-black/20 to-transparent pointer-events-none z-10" />
 
                     {/* 写真下部フェード（ネームプレートへのシームレスなグラデーション） */}
-                    <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/80 to-transparent pointer-events-none" />
+                    <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/80 to-transparent pointer-events-none z-10" />
                   </div>
 
                   {/* ヘッダー：チームロゴ・シーズン（写真の上にフローティング配置） */}
