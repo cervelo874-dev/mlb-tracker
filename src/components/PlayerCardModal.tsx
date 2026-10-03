@@ -613,18 +613,32 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                     </div>
                   )}
 
-                  {/* 選手写真（カード上部いっぱい〜ネームプレート直上まで余白なく全面配置） */}
-                  <div className="absolute inset-x-0 top-0 bottom-[146px] overflow-hidden">
+                  {/* 選手写真（見切れを防ぐ引きの構図 ＋ 自然なスタジアム光彩ブレンド） */}
+                  <div className="absolute inset-x-0 top-0 bottom-[135px] overflow-hidden">
                     {imgStage < headshotUrls.length ? (
-                      <img
-                        key={imgStage}
-                        src={headshotUrls[imgStage]}
-                        alt={displayName}
-                        className="w-full h-full object-cover object-[center_20%] drop-shadow-md transition-transform duration-500"
-                        referrerPolicy="no-referrer"
-                        draggable={false}
-                        onError={() => setImgStage((s) => s + 1)}
-                      />
+                      <>
+                        {/* 背面: 写真のエッジ色・スタジアムの光彩をカード上部全体に広げるアンビエントブレンド層 */}
+                        <img
+                          src={headshotUrls[imgStage]}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-60 scale-125 pointer-events-none"
+                          referrerPolicy="no-referrer"
+                        />
+
+                        {/* 前面: 適度な引き（scale-95〜100、中央寄り）で見切れを防ぎ、フォームの躍動感を綺麗に収める */}
+                        <div className="relative z-10 w-full h-full flex items-center justify-center p-2 pt-10">
+                          <img
+                            key={imgStage}
+                            src={headshotUrls[imgStage]}
+                            alt={displayName}
+                            className="w-full h-full object-contain object-center drop-shadow-[0_12px_28px_rgba(0,0,0,0.85)] filter contrast-[1.03] transition-transform duration-500"
+                            referrerPolicy="no-referrer"
+                            draggable={false}
+                            onError={() => setImgStage((s) => s + 1)}
+                          />
+                        </div>
+                      </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white/20 text-7xl font-black">
                         {number || '?'}
