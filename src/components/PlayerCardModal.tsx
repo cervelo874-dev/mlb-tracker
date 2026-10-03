@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, RotateCw, Loader2 } from 'lucide-react';
+import { X, RotateCw, Loader2, Camera } from 'lucide-react';
 import { MLB_TEAMS } from '../constants/teams';
 import { getPlayerDisplayName } from '../utils/translator';
 import { triggerVibration, VIBRATION_PATTERNS } from '../utils/vibrate';
@@ -375,6 +375,7 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
   const [group, setGroup] = useState<StatGroup>('hitting');
   const [flipped, setFlipped] = useState(false);
   const [tilt, setTilt] = useState({ rx: 0, ry: 0, mx: 50, my: 50, active: false });
+  const [photoType, setPhotoType] = useState<'portrait' | 'action'>('portrait');
   const [imgStage, setImgStage] = useState(0);
 
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
@@ -388,6 +389,7 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
     setPeriod('regular');
     setGroup(selection.preferredGroup);
     setFlipped(false);
+    setPhotoType('portrait');
     setImgStage(0);
     setError(null);
     setLoading(true);
@@ -492,16 +494,26 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
   const posJa = POSITION_JA[posAbbr] || person?.primaryPosition?.name || '';
   const number = person?.primaryNumber;
 
-  const headshotUrls = [
-    // 1. 最優先: 試合中のダイナミックなアクションショット（AI自動フォーカスで選手の重要アクションを4:5比率に収めて取得）
-    `https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto,ar_4:5,w_1200,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
-    // 2. 最優先2: アスペクト比指定なしの元アクションショット（w_1600）
-    `https://img.mlbstatic.com/mlb-photos/image/upload/w_1600,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
-    // 3. フォールバック1: 高解像度公式キャップ着用バストアップ切り抜き (w_1200)
-    `https://img.mlbstatic.com/mlb-photos/image/upload/w_1200,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${selection.id}/headshot/silo/current.png`,
-    // 4. フォールバック2: 公式ヘッドショット67 (w_1200)
-    `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_1200,q_auto:best/v1/people/${selection.id}/headshot/67/current`,
-  ];
+  const headshotUrls = useMemo(() => {
+    if (photoType === 'portrait') {
+      return [
+        // 1. 公式キャップ着用バストアップ切り抜き（透過PNG・最高画質）
+        `https://img.mlbstatic.com/mlb-photos/image/upload/c_fit,w_1000,h_1000,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${selection.id}/headshot/silo/current.png`,
+        // 2. 公式ヘッドショット67
+        `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_1200,q_auto:best/v1/people/${selection.id}/headshot/67/current`,
+        // 3. アクション写真
+        `https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto,ar_4:5,w_1200,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
+      ];
+    }
+    return [
+      // 1. 試合中のダイナミックなアクションショット（AI自動フォーカスで4:5比率に収めて取得）
+      `https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto,ar_4:5,w_1200,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
+      // 2. 元アクションショット（w_1600）
+      `https://img.mlbstatic.com/mlb-photos/image/upload/w_1600,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
+      // 3. 公式ポートレート
+      `https://img.mlbstatic.com/mlb-photos/image/upload/c_fit,w_1000,h_1000,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${selection.id}/headshot/silo/current.png`,
+    ];
+  }, [selection.id, photoType]);
 
   /* 共通: カード面のベーススタイル */
   const faceStyle: React.CSSProperties = {
@@ -615,18 +627,32 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                     </div>
                   )}
 
-                  {/* 選手写真（カード上部いっぱい〜ネームプレート直上まで余白なく全面配置） */}
+                  {/* 選手写真（portrait時は透過切り抜きを中央〜下部に配置、action時はカード上部全面にダイナミック配置） */}
                   <div className="absolute inset-x-0 top-0 bottom-[146px] overflow-hidden">
                     {imgStage < headshotUrls.length ? (
-                      <img
-                        key={imgStage}
-                        src={headshotUrls[imgStage]}
-                        alt={displayName}
-                        className="w-full h-full object-cover object-[center_25%] drop-shadow-md transition-transform duration-500"
-                        referrerPolicy="no-referrer"
-                        draggable={false}
-                        onError={() => setImgStage((s) => s + 1)}
-                      />
+                      photoType === 'portrait' ? (
+                        <div className="relative w-full h-full flex items-end justify-center pb-2 pt-14">
+                          <img
+                            key={`${photoType}-${imgStage}`}
+                            src={headshotUrls[imgStage]}
+                            alt={displayName}
+                            className="max-w-[85%] max-h-[92%] object-contain object-bottom drop-shadow-[0_16px_28px_rgba(0,0,0,0.85)] filter contrast-[1.04] transition-all duration-300"
+                            referrerPolicy="no-referrer"
+                            draggable={false}
+                            onError={() => setImgStage((s) => s + 1)}
+                          />
+                        </div>
+                      ) : (
+                        <img
+                          key={`${photoType}-${imgStage}`}
+                          src={headshotUrls[imgStage]}
+                          alt={displayName}
+                          className="w-full h-full object-cover object-[center_25%] drop-shadow-md transition-transform duration-500"
+                          referrerPolicy="no-referrer"
+                          draggable={false}
+                          onError={() => setImgStage((s) => s + 1)}
+                        />
+                      )
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white/20 text-7xl font-black">
                         {number || '?'}
@@ -639,10 +665,26 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                     <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/80 to-transparent pointer-events-none z-10" />
                   </div>
 
-                  {/* ヘッダー：チームロゴ・シーズン（写真の上にフローティング配置） */}
+                  {/* ヘッダー：チームロゴ・写真切替・シーズン（写真の上にフローティング配置） */}
                   <div className="relative z-20 flex items-center justify-between px-4 pt-3.5 drop-shadow-md">
-                    <div className="w-11 h-11 rounded-full bg-white/95 p-1.5 shadow-xl ring-2 ring-amber-300/80 flex items-center justify-center backdrop-blur-sm">
-                      {team?.logo && <img src={team.logo} alt={team.name} className="w-full h-full object-contain" />}
+                    <div className="flex items-center gap-2">
+                      <div className="w-11 h-11 rounded-full bg-white/95 p-1.5 shadow-xl ring-2 ring-amber-300/80 flex items-center justify-center backdrop-blur-sm">
+                        {team?.logo && <img src={team.logo} alt={team.name} className="w-full h-full object-contain" />}
+                      </div>
+                      {/* 写真切替ボタン */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          triggerVibration(VIBRATION_PATTERNS.lightTap);
+                          setPhotoType((p) => (p === 'portrait' ? 'action' : 'portrait'));
+                          setImgStage(0);
+                        }}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-black/60 hover:bg-black/80 backdrop-blur-md border border-amber-300/40 text-[10px] font-bold text-amber-200 transition-colors shadow-md"
+                        title="写真モード切替"
+                      >
+                        <Camera className="w-3 h-3 text-amber-300" />
+                        <span>{photoType === 'portrait' ? '顔写真' : '試合中'}</span>
+                      </button>
                     </div>
                     <div className="text-right bg-black/50 backdrop-blur-md px-2.5 py-1 rounded-xl border border-white/15 shadow-lg">
                       <div className="text-[10px] font-black tracking-[0.25em] text-amber-300">{season} SEASON</div>
