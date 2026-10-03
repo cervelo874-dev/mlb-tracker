@@ -493,11 +493,13 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
   const number = person?.primaryNumber;
 
   const headshotUrls = [
-    // 1. 最優先: 試合中のダイナミックなアクションショット（最高解像度 w_1600）
+    // 1. 最優先: 試合中のダイナミックなアクションショット（AI自動フォーカスで選手の重要アクションを4:5比率に収めて取得）
+    `https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto,ar_4:5,w_1200,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
+    // 2. 最優先2: アスペクト比指定なしの元アクションショット（w_1600）
     `https://img.mlbstatic.com/mlb-photos/image/upload/w_1600,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
-    // 2. フォールバック1: 高解像度公式キャップ着用バストアップ切り抜き (w_1200)
+    // 3. フォールバック1: 高解像度公式キャップ着用バストアップ切り抜き (w_1200)
     `https://img.mlbstatic.com/mlb-photos/image/upload/w_1200,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${selection.id}/headshot/silo/current.png`,
-    // 3. フォールバック2: 公式ヘッドショット67 (w_1200)
+    // 4. フォールバック2: 公式ヘッドショット67 (w_1200)
     `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_1200,q_auto:best/v1/people/${selection.id}/headshot/67/current`,
   ];
 
@@ -613,32 +615,18 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                     </div>
                   )}
 
-                  {/* 選手写真（見切れを防ぐ引きの構図 ＋ 自然なスタジアム光彩ブレンド） */}
-                  <div className="absolute inset-x-0 top-0 bottom-[135px] overflow-hidden">
+                  {/* 選手写真（カード上部いっぱい〜ネームプレート直上まで余白なく全面配置） */}
+                  <div className="absolute inset-x-0 top-0 bottom-[146px] overflow-hidden">
                     {imgStage < headshotUrls.length ? (
-                      <>
-                        {/* 背面: 写真のエッジ色・スタジアムの光彩をカード上部全体に広げるアンビエントブレンド層 */}
-                        <img
-                          src={headshotUrls[imgStage]}
-                          alt=""
-                          aria-hidden="true"
-                          className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-60 scale-125 pointer-events-none"
-                          referrerPolicy="no-referrer"
-                        />
-
-                        {/* 前面: 適度な引き（scale-95〜100、中央寄り）で見切れを防ぎ、フォームの躍動感を綺麗に収める */}
-                        <div className="relative z-10 w-full h-full flex items-center justify-center p-2 pt-10">
-                          <img
-                            key={imgStage}
-                            src={headshotUrls[imgStage]}
-                            alt={displayName}
-                            className="w-full h-full object-contain object-center drop-shadow-[0_12px_28px_rgba(0,0,0,0.85)] filter contrast-[1.03] transition-transform duration-500"
-                            referrerPolicy="no-referrer"
-                            draggable={false}
-                            onError={() => setImgStage((s) => s + 1)}
-                          />
-                        </div>
-                      </>
+                      <img
+                        key={imgStage}
+                        src={headshotUrls[imgStage]}
+                        alt={displayName}
+                        className="w-full h-full object-cover object-[center_25%] drop-shadow-md transition-transform duration-500"
+                        referrerPolicy="no-referrer"
+                        draggable={false}
+                        onError={() => setImgStage((s) => s + 1)}
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white/20 text-7xl font-black">
                         {number || '?'}
