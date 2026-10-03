@@ -348,8 +348,12 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
   const number = person?.primaryNumber;
 
   const headshotUrls = [
+    // 1. 最優先: 試合中のダイナミックなアクションショット（打撃・投球フォーム等の全身/半身切り抜き）
+    `https://img.mlbstatic.com/mlb-photos/image/upload/w_600,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
+    // 2. フォールバック1: 高解像度公式キャップ着用バストアップ切り抜き
+    `https://img.mlbstatic.com/mlb-photos/image/upload/w_480,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${selection.id}/headshot/silo/current.png`,
+    // 3. フォールバック2: 公式ヘッドショット67
     `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_426,q_auto:best/v1/people/${selection.id}/headshot/67/current`,
-    `https://img.mlbstatic.com/mlb-photos/image/upload/w_240,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${selection.id}/headshot/silo/current.png`,
   ];
 
   /* 共通: カード面のベーススタイル */
@@ -421,6 +425,7 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
               transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
               transition: tilt.active ? 'transform 0.05s linear' : 'transform 0.6s cubic-bezier(.2,.8,.2,1)',
               touchAction: 'none',
+              filter: 'drop-shadow(0 25px 35px rgba(0,0,0,0.65)) drop-shadow(0 0 25px rgba(245,180,60,0.25))',
             }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -435,11 +440,18 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                 transformStyle: 'preserve-3d',
                 transform: `rotateY(${flipped ? 180 : 0}deg)`,
                 transition: 'transform 0.75s cubic-bezier(.3,1.3,.5,1)',
-                filter: 'drop-shadow(0 25px 35px rgba(0,0,0,0.6)) drop-shadow(0 0 25px rgba(245,180,60,0.25))',
               }}
             >
               {/* ---------------- 表面 ---------------- */}
-              <div style={faceStyle}>
+              <div
+                style={{
+                  ...faceStyle,
+                  transform: 'rotateY(0deg) translateZ(1px)',
+                  opacity: flipped ? 0 : 1,
+                  pointerEvents: flipped ? 'none' : 'auto',
+                  transition: 'opacity 0.2s ease',
+                }}
+              >
                 <div className="relative w-full h-full rounded-[1.1rem] overflow-hidden flex flex-col" style={innerBg}>
                   {/* 背景の装飾パターン */}
                   <div
@@ -467,14 +479,14 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                     </div>
                   </div>
 
-                  {/* 選手写真 */}
-                  <div className="relative z-10 flex-1 flex items-end justify-center min-h-0 -mt-1">
+                  {/* 選手写真（ダイナミック・アクション優先） */}
+                  <div className="relative z-10 flex-1 flex items-end justify-center min-h-0 -mt-1 overflow-hidden">
                     {imgStage < headshotUrls.length ? (
                       <img
                         key={imgStage}
                         src={headshotUrls[imgStage]}
                         alt={displayName}
-                        className="h-full max-h-full w-auto object-contain object-bottom drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]"
+                        className="h-full max-h-full w-auto object-contain object-bottom drop-shadow-[0_12px_24px_rgba(0,0,0,0.7)] scale-105 transition-transform duration-300"
                         referrerPolicy="no-referrer"
                         draggable={false}
                         onError={() => setImgStage((s) => s + 1)}
@@ -483,7 +495,7 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                       <div className="mb-10 text-white/30 text-6xl font-black">{number || '?'}</div>
                     )}
                     {/* 写真下部のフェード */}
-                    <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0a0f1c] to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0a0f1c] to-transparent pointer-events-none" />
                   </div>
 
                   {/* ネームプレート */}
@@ -546,9 +558,17 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
               </div>
 
               {/* ---------------- 裏面 ---------------- */}
-              <div style={{ ...faceStyle, transform: 'rotateY(180deg)' }}>
+              <div
+                style={{
+                  ...faceStyle,
+                  transform: 'rotateY(180deg) translateZ(1px)',
+                  opacity: flipped ? 1 : 0,
+                  pointerEvents: flipped ? 'auto' : 'none',
+                  transition: 'opacity 0.2s ease',
+                }}
+              >
                 <div
-                  className="relative w-full h-full rounded-[1.1rem] overflow-hidden flex flex-col"
+                  className="relative w-full h-full rounded-[1.1rem] overflow-hidden flex flex-col justify-between"
                   style={{
                     background: `linear-gradient(170deg, #0d1322 0%, #0a0f1c 55%, ${primary}66 100%)`,
                   }}
@@ -563,25 +583,32 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                   />
 
                   {/* 裏面ヘッダー */}
-                  <div className="relative z-10 flex items-center gap-2.5 px-4 pt-3.5 pb-2 border-b border-amber-300/25">
-                    {team?.logo && (
-                      <div className="w-8 h-8 rounded-full bg-white/90 p-1 flex-shrink-0">
-                        <img src={team.logo} alt="" className="w-full h-full object-contain" />
+                  <div className="relative z-10 flex items-center justify-between px-3.5 pt-3 pb-2 border-b border-amber-300/25">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {team?.logo && (
+                        <div className="w-7 h-7 rounded-full bg-white/90 p-0.5 flex-shrink-0">
+                          <img src={team.logo} alt="" className="w-full h-full object-contain" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="text-sm sm:text-base font-black text-white truncate">
+                          {number ? `#${number} ` : ''}
+                          {displayName}
+                        </div>
+                        <div className="text-[9px] sm:text-[10px] font-semibold text-slate-300 truncate">
+                          {englishName}
+                        </div>
                       </div>
-                    )}
-                    <div className="min-w-0">
-                      <div className="text-base font-black text-white truncate">
-                        {number ? `#${number} ` : ''}
-                        {displayName}
-                      </div>
-                      <div className="text-[10px] font-bold tracking-widest text-amber-200/80">
-                        {PERIOD_LABEL[period]} · {group === 'hitting' ? 'BATTING' : 'PITCHING'}
-                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <span className="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded bg-amber-400/20 text-amber-200 border border-amber-400/30">
+                        {PERIOD_LABEL[period]}
+                      </span>
                     </div>
                   </div>
 
-                  {/* プロフィール */}
-                  <div className="relative z-10 grid grid-cols-3 gap-1.5 px-3.5 pt-2.5">
+                  {/* プロフィール（6項目） */}
+                  <div className="relative z-10 grid grid-cols-3 gap-1 px-3 pt-1.5">
                     {[
                       { label: '年齢', value: person?.currentAge ? `${person.currentAge}歳` : '-' },
                       { label: '身長', value: heightToCm(person?.height) },
@@ -595,25 +622,29 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                       { label: '投打', value: person ? `${handJa(person?.pitchHand?.code)}投${handJa(person?.batSide?.code)}打` : '-' },
                       { label: 'デビュー', value: person?.mlbDebutDate ? person.mlbDebutDate.slice(0, 4) + '年' : '-' },
                     ].map((it) => (
-                      <div key={it.label} className="rounded-lg bg-white/5 border border-white/10 px-2 py-1">
-                        <div className="text-[10px] text-slate-400 font-bold">{it.label}</div>
-                        <div className="text-[13px] font-black text-slate-100 truncate">{it.value}</div>
+                      <div key={it.label} className="rounded-lg bg-white/5 border border-white/10 px-1.5 py-1 text-center">
+                        <div className="text-[9px] text-slate-400 font-bold">{it.label}</div>
+                        <div className="text-xs font-black text-slate-100 truncate">{it.value}</div>
                       </div>
                     ))}
                   </div>
 
-                  {/* 詳細成績 */}
-                  <div className="relative z-10 flex-1 px-3.5 pt-2.5 pb-3 min-h-0">
+                  {/* 詳細成績（4列 × 4行 = 16項目） */}
+                  <div className="relative z-10 flex-1 px-3 pt-2 pb-2.5 min-h-0 flex flex-col justify-center">
                     {currentStats ? (
-                      <div className="grid grid-cols-3 gap-1.5">
+                      <div className="grid grid-cols-4 gap-1">
                         {[...mainStats(group, currentStats), ...detailStats(group, currentStats)].map((it) => (
                           <div
                             key={it.label}
-                            className="rounded-lg px-2 py-1 bg-black/40 border border-amber-200/10 flex items-baseline justify-between gap-1"
+                            className="rounded-lg p-1 bg-black/45 border border-amber-200/15 flex flex-col items-center justify-center text-center"
                           >
-                            <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">{it.label}</span>
+                            <span className="text-[9px] font-bold text-slate-400 leading-tight truncate w-full">
+                              {it.label}
+                            </span>
                             <span
-                              className={`text-sm font-black font-mono ${it.highlight ? 'text-amber-300' : 'text-white'}`}
+                              className={`text-xs sm:text-[13px] font-black font-mono leading-tight mt-0.5 ${
+                                it.highlight ? 'text-amber-300' : 'text-white'
+                              }`}
                             >
                               {it.value}
                             </span>
@@ -621,10 +652,17 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
                         ))}
                       </div>
                     ) : (
-                      <div className="h-full flex items-center justify-center text-sm text-slate-400 font-bold">
+                      <div className="h-full flex items-center justify-center text-xs text-slate-400 font-bold text-center px-4">
                         {loading ? '読み込み中…' : `${PERIOD_LABEL[period]}の成績はありません`}
                       </div>
                     )}
+                  </div>
+
+                  {/* カード裏面フッター */}
+                  <div className="relative z-10 px-3 pb-2 pt-1 border-t border-white/10 text-center">
+                    <span className="text-[9px] font-bold text-amber-200/70 tracking-widest uppercase">
+                      OFFICIAL MLB CARD · {group === 'hitting' ? 'BATTING RECORD' : 'PITCHING RECORD'}
+                    </span>
                   </div>
 
                   {holoLayer}
