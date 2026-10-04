@@ -494,26 +494,20 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
   const posJa = POSITION_JA[posAbbr] || person?.primaryPosition?.name || '';
   const number = person?.primaryNumber;
 
-  const headshotUrls = useMemo(() => {
-    if (photoType === 'portrait') {
-      return [
-        // 1. 公式キャップ着用バストアップ切り抜き（透過PNG・最高画質）
-        `https://img.mlbstatic.com/mlb-photos/image/upload/c_fit,w_1000,h_1000,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${selection.id}/headshot/silo/current.png`,
-        // 2. 公式ヘッドショット67
-        `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_1200,q_auto:best/v1/people/${selection.id}/headshot/67/current`,
-        // 3. アクション写真
-        `https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto,ar_4:5,w_1200,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
-      ];
-    }
-    return [
-      // 1. 試合中のダイナミックなアクションショット（AI自動フォーカスで4:5比率に収めて取得）
-      `https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto,ar_4:5,w_1200,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
-      // 2. 元アクションショット（w_1600）
-      `https://img.mlbstatic.com/mlb-photos/image/upload/w_1600,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
-      // 3. 公式ポートレート
-      `https://img.mlbstatic.com/mlb-photos/image/upload/c_fit,w_1000,h_1000,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${selection.id}/headshot/silo/current.png`,
-    ];
-  }, [selection.id, photoType]);
+  // ※ early return の後なので Hook（useMemo 等）は使わない（Rules of Hooks）
+  const portraitUrls = [
+    // 公式キャップ着用バストアップ切り抜き（透過PNG）
+    `https://img.mlbstatic.com/mlb-photos/image/upload/c_fit,w_1000,h_1000,d_people:generic:headshot:silo:current.png,q_auto:best,f_auto/v1/people/${selection.id}/headshot/silo/current.png`,
+    // 公式ヘッドショット67
+    `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_1200,q_auto:best/v1/people/${selection.id}/headshot/67/current`,
+  ];
+  const actionUrls = [
+    // 試合中アクションショット（AI自動フォーカスで4:5比率に切り出し）
+    `https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto,ar_4:5,w_1200,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
+    // 元アクションショット（w_1600）
+    `https://img.mlbstatic.com/mlb-photos/image/upload/w_1600,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
+  ];
+  const headshotUrls = photoType === 'portrait' ? [...portraitUrls, ...actionUrls] : [...actionUrls, ...portraitUrls];
 
   /* 共通: カード面のベーススタイル */
   const faceStyle: React.CSSProperties = {
