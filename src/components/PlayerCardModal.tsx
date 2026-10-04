@@ -144,6 +144,16 @@ const POSITION_JA: Record<string, string> = {
   TWP: '二刀流',
 };
 
+/**
+ * MLB公式heroバナー（3:1横長画像）で顔検出が外れやすい選手（被写体が端・横顔・ヘルメットなど）向けの最適化クロップ指定
+ */
+const PLAYER_HERO_CROPS: Record<number, string> = {
+  // Juan Soto: 打撃フォローで写真右寄りに頭部がある
+  665742: 'c_crop,h_1000,w_1200,x_1300,y_0',
+  // Aaron Judge: フォロースルーで右寄りに頭部がある
+  592450: 'c_crop,h_1000,w_1200,x_1100,y_0',
+};
+
 const handJa = (code?: string) => (code === 'R' ? '右' : code === 'L' ? '左' : code === 'S' ? '両' : '-');
 
 const heightToCm = (h?: string): string => {
@@ -501,10 +511,17 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
     // 公式ヘッドショット67
     `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_1200,q_auto:best/v1/people/${selection.id}/headshot/67/current`,
   ];
+  const customHeroCrop = PLAYER_HERO_CROPS[selection.id];
   const actionUrls = [
-    // 試合中アクションショット（AI自動フォーカスで4:5比率に切り出し）
+    // 1. 個別最適化クロップ指定がある場合は最優先
+    ...(customHeroCrop
+      ? [`https://img.mlbstatic.com/mlb-photos/image/upload/${customHeroCrop}/w_1200,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`]
+      : []),
+    // 2. 顔検出優先（g_face）で4:5比率に切り出し（手やバットだけのクロップを防ぎ、選手の顔・頭部を中心に捉える）
+    `https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_face,ar_4:5,w_1200,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
+    // 3. AI自動被写体検出（g_auto）
     `https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto,ar_4:5,w_1200,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
-    // 元アクションショット（w_1600）
+    // 4. 元アクションショット（w_1600）
     `https://img.mlbstatic.com/mlb-photos/image/upload/w_1600,q_auto:best,f_auto/v1/people/${selection.id}/action/hero/current`,
   ];
   const headshotUrls = photoType === 'portrait' ? [...portraitUrls, ...actionUrls] : [...actionUrls, ...portraitUrls];
