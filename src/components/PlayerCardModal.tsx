@@ -375,7 +375,7 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
   const [group, setGroup] = useState<StatGroup>('hitting');
   const [flipped, setFlipped] = useState(false);
   const [tilt, setTilt] = useState({ rx: 0, ry: 0, mx: 50, my: 50, active: false });
-  const [photoType, setPhotoType] = useState<'portrait' | 'action'>('portrait');
+  const [photoType, setPhotoType] = useState<'portrait' | 'action'>('action');
   const [imgStage, setImgStage] = useState(0);
 
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
@@ -389,7 +389,7 @@ export const PlayerCardModal: React.FC<PlayerCardModalProps> = ({ selection, sea
     setPeriod('regular');
     setGroup(selection.preferredGroup);
     setFlipped(false);
-    setPhotoType('portrait');
+    setPhotoType('action');
     setImgStage(0);
     setError(null);
     setLoading(true);
